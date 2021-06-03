@@ -7,6 +7,277 @@ from archicad.acbasetype import _ACBaseType, _ACUnionType, _ConstructUnion
 from archicad.validators import value_set, matches, min_length, max_length, multiple_of, minimum, maximum, listitem_validator, min_items, max_items, unique_items
 
 
+class AddOnCommandId(_ACBaseType):
+    """ The identifier of an Add-On command.
+
+    Attributes:
+        commandNamespace (:obj:`str`): The namespace of the Add-On command.
+        commandName (:obj:`str`): The name of the Add-On command.
+
+    """
+    __slots__ = ("commandNamespace", "commandName", )
+
+    def __init__(self, commandNamespace: str, commandName: str):
+        self.commandNamespace: str = commandNamespace
+        self.commandName: str = commandName
+
+AddOnCommandId.get_classinfo().add_field('commandNamespace', str, min_length(1))
+AddOnCommandId.get_classinfo().add_field('commandName', str, min_length(1))
+
+
+class AddOnCommandIdArrayItem(_ACBaseType):
+    """ EMPTY STRING
+
+    Attributes:
+        addOnCommandId (:obj:`AddOnCommandId`): The identifier of an Add-On command.
+
+    """
+    __slots__ = ("addOnCommandId", )
+
+    def __init__(self, addOnCommandId: AddOnCommandId):
+        self.addOnCommandId: AddOnCommandId = addOnCommandId
+
+AddOnCommandIdArrayItem.get_classinfo().add_field('addOnCommandId', AddOnCommandId)
+
+
+class AddOnCommandParameters(_ACBaseType):
+    """ The input parameters of an Add-On command.
+
+    """
+    def __init__(self):
+        pass
+
+
+class AddOnCommandResponse(_ACBaseType):
+    """ The response returned by an Add-On command.
+
+    """
+    def __init__(self):
+        pass
+
+
+class AttributeId(_ACBaseType):
+    """ The identifier of an attribute.
+
+    Attributes:
+        guid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
+
+    """
+    __slots__ = ("guid", )
+
+    def __init__(self, guid: UUID):
+        self.guid: UUID = guid
+
+AttributeId.get_classinfo().add_field('guid', UUID)
+
+
+class AttributeIdWrapperItem(_ACBaseType):
+    """ EMPTY STRING
+
+    Attributes:
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+
+    """
+    __slots__ = ("attributeId", )
+
+    def __init__(self, attributeId: AttributeId):
+        self.attributeId: AttributeId = attributeId
+
+AttributeIdWrapperItem.get_classinfo().add_field('attributeId', AttributeId)
+
+
+class AttributeHeader(_ACBaseType):
+    """ The header object of an attribute.
+
+    Attributes:
+        id (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of the attribute.
+
+    """
+    __slots__ = ("id", "name", )
+
+    def __init__(self, id: AttributeId, name: str):
+        self.id: AttributeId = id
+        self.name: str = name
+
+AttributeHeader.get_classinfo().add_field('id', AttributeId)
+AttributeHeader.get_classinfo().add_field('name', str)
+
+
+class LayerAttribute(_ACBaseType):
+    """ A layer attribute
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        intersectionGroupNr (:obj:`int`): The intersection group number
+        isLocked (:obj:`bool`): Defines whether the layer is locked or not.
+        isHidden (:obj:`bool`): Defines whether the layer is hidden or not.
+        isWireframe (:obj:`bool`): Defines whether the elements placed on this layer are visible as wireframes or a solid model.
+
+    """
+    __slots__ = ("header", "intersectionGroupNr", "isLocked", "isHidden", "isWireframe", )
+
+    def __init__(self, header: AttributeHeader, intersectionGroupNr: int, isLocked: bool, isHidden: bool, isWireframe: bool):
+        self.header: AttributeHeader = header
+        self.intersectionGroupNr: int = intersectionGroupNr
+        self.isLocked: bool = isLocked
+        self.isHidden: bool = isHidden
+        self.isWireframe: bool = isWireframe
+
+LayerAttribute.get_classinfo().add_field('header', AttributeHeader)
+LayerAttribute.get_classinfo().add_field('intersectionGroupNr', int)
+LayerAttribute.get_classinfo().add_field('isLocked', bool)
+LayerAttribute.get_classinfo().add_field('isHidden', bool)
+LayerAttribute.get_classinfo().add_field('isWireframe', bool)
+
+
+class FillAttribute(_ACBaseType):
+    """ A fill attribute.
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        subType (:obj:`str`): The filling type of a fill attribute.
+        pattern (:obj:`int`): The pattern of the fill attribute, stored in a 64 bit unsigned integer, and represented as an 8x8 matrix. Each byte in the value is a row, and the bits are the columns of the matrix.
+
+    """
+    __slots__ = ("header", "subType", "pattern", )
+
+    def __init__(self, header: AttributeHeader, subType: str, pattern: int):
+        self.header: AttributeHeader = header
+        self.subType: str = subType
+        self.pattern: int = pattern
+
+FillAttribute.get_classinfo().add_field('header', AttributeHeader)
+FillAttribute.get_classinfo().add_field('subType', str, value_set(['Vector', 'Symbol', 'Solid', 'Empty', 'LinearGradient', 'RadialGradient', 'Image']))
+FillAttribute.get_classinfo().add_field('pattern', int)
+
+
+class ProfileModifier(_ACBaseType):
+    """ A profile modifier parameter.
+
+    Attributes:
+        name (:obj:`str`): The name of the modifier.
+        value (:obj:`float`): The value of the modifier.
+
+    """
+    __slots__ = ("name", "value", )
+
+    def __init__(self, name: str, value: float):
+        self.name: str = name
+        self.value: float = value
+
+ProfileModifier.get_classinfo().add_field('name', str)
+ProfileModifier.get_classinfo().add_field('value', float)
+
+
+class ProfileModifierListItem(_ACBaseType):
+    """ EMPTY STRING
+
+    Attributes:
+        profileModifier (:obj:`ProfileModifier`): A profile modifier parameter.
+
+    """
+    __slots__ = ("profileModifier", )
+
+    def __init__(self, profileModifier: ProfileModifier):
+        self.profileModifier: ProfileModifier = profileModifier
+
+ProfileModifierListItem.get_classinfo().add_field('profileModifier', ProfileModifier)
+
+
+class ProfileAttribute(_ACBaseType):
+    """ A profile attribute.
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        useWith (:obj:`list` of :obj:`str`): A list of element types.
+        width (:obj:`float`): The default width (horizontal size) of the profile.
+        height (:obj:`float`): The default height (vertical size) of the profile.
+        minimumWidth (:obj:`float`): The minimum width (horizontal size) of the profile.
+        minimumHeight (:obj:`float`): The minimum height (vertical size) of the profile.
+        widthStretchable (:obj:`bool`): Defines whether the profile's width can be increased beyond its default value or not.
+        heightStretchable (:obj:`bool`): Defines whether the profile's height can be increased beyond its default value or not.
+        hasCoreSkin (:obj:`bool`): Defines whether the profile has a core skin or not.
+        profileModifiers (:obj:`list` of :obj:`ProfileModifierListItem`): A list of profile modifiers.
+
+    """
+    __slots__ = ("header", "useWith", "width", "height", "minimumWidth", "minimumHeight", "widthStretchable", "heightStretchable", "hasCoreSkin", "profileModifiers", )
+
+    def __init__(self, header: AttributeHeader, useWith: List[str], width: float, height: float, minimumWidth: float, minimumHeight: float, widthStretchable: bool, heightStretchable: bool, hasCoreSkin: bool, profileModifiers: List[ProfileModifierListItem]):
+        self.header: AttributeHeader = header
+        self.useWith: List[str] = useWith
+        self.width: float = width
+        self.height: float = height
+        self.minimumWidth: float = minimumWidth
+        self.minimumHeight: float = minimumHeight
+        self.widthStretchable: bool = widthStretchable
+        self.heightStretchable: bool = heightStretchable
+        self.hasCoreSkin: bool = hasCoreSkin
+        self.profileModifiers: List[ProfileModifierListItem] = profileModifiers
+
+ProfileAttribute.get_classinfo().add_field('header', AttributeHeader)
+ProfileAttribute.get_classinfo().add_field('useWith', List[str], listitem_validator(value_set(['Wall', 'Column', 'Beam', 'Window', 'Door', 'Object', 'Lamp', 'Slab', 'Roof', 'Mesh', 'Zone', 'CurtainWall', 'Shell', 'Skylight', 'Morph', 'Stair', 'Railing', 'Opening'])))
+ProfileAttribute.get_classinfo().add_field('width', float)
+ProfileAttribute.get_classinfo().add_field('height', float)
+ProfileAttribute.get_classinfo().add_field('minimumWidth', float)
+ProfileAttribute.get_classinfo().add_field('minimumHeight', float)
+ProfileAttribute.get_classinfo().add_field('widthStretchable', bool)
+ProfileAttribute.get_classinfo().add_field('heightStretchable', bool)
+ProfileAttribute.get_classinfo().add_field('hasCoreSkin', bool)
+ProfileAttribute.get_classinfo().add_field('profileModifiers', List[ProfileModifierListItem])
+
+
+class Texture(_ACBaseType):
+    """ A texture
+
+    Attributes:
+        name (:obj:`str`): The name of the texture.
+
+    """
+    __slots__ = ("name", )
+
+    def __init__(self, name: str):
+        self.name: str = name
+
+Texture.get_classinfo().add_field('name', str)
+
+
+class DashItem(_ACBaseType):
+    """ A dash item.
+
+    Attributes:
+        dash (:obj:`float`): The length of the dash.
+        gap (:obj:`float`): The length of the gap.
+
+    """
+    __slots__ = ("dash", "gap", )
+
+    def __init__(self, dash: float, gap: float):
+        self.dash: float = dash
+        self.gap: float = gap
+
+DashItem.get_classinfo().add_field('dash', float)
+DashItem.get_classinfo().add_field('gap', float)
+
+
+class LayerCombinationAttribute(_ACBaseType):
+    """ A layer combination attribute
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        layerAttributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+    """
+    __slots__ = ("header", "layerAttributeIds", )
+
+    def __init__(self, header: AttributeHeader, layerAttributeIds: List[AttributeIdWrapperItem]):
+        self.header: AttributeHeader = header
+        self.layerAttributeIds: List[AttributeIdWrapperItem] = layerAttributeIds
+
+LayerCombinationAttribute.get_classinfo().add_field('header', AttributeHeader)
+LayerCombinationAttribute.get_classinfo().add_field('layerAttributeIds', List[AttributeIdWrapperItem])
+
+
 class ClassificationSystemId(_ACBaseType):
     """ The identifier of a classification system.
 
@@ -86,10 +357,10 @@ ClassificationId.get_classinfo().add_field('classificationItemId', Optional[Clas
 
 
 class ClassificationItemDetails(_ACBaseType):
-    """ Details of a classification item.
+    """ The details of a classification item.
 
     Attributes:
-        id (:obj:`str`): The user specified unique identifier of the classification item.
+        id (:obj:`str`): The unique identifier of the classification item as specified by the user.
         name (:obj:`str`): The display name of the classification item.
         description (:obj:`str`): The description of the classification item.
 
@@ -107,14 +378,14 @@ ClassificationItemDetails.get_classinfo().add_field('description', str)
 
 
 class ClassificationSystem(_ACBaseType):
-    """ Details of a classification system.
+    """ The details of a classification system.
 
     Attributes:
         classificationSystemId (:obj:`ClassificationSystemId`): The identifier of a classification system.
         name (:obj:`str`): The display name of the classification system.
         description (:obj:`str`): The description of the classification system.
         source (:obj:`str`): The source of the classification system (e.g. URL to a classification system standard).
-        version (:obj:`str`): The version string of the classification system.
+        version (:obj:`str`): The version of the classification system.
         date (:obj:`str`): A date in its string representation as defined in ISO 8601: YYYY-MM-DD.
 
     """
@@ -136,11 +407,29 @@ ClassificationSystem.get_classinfo().add_field('version', str)
 ClassificationSystem.get_classinfo().add_field('date', str, matches(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))
 
 
-class UserDefinedPropertyUserId(_ACBaseType):
-    """ An object which uniquely identifies a User-Defined Property by its name in human-readable form.
+class Point2D(_ACBaseType):
+    """ EMPTY STRING
 
     Attributes:
-        localizedName (:obj:`list` of :obj:`str`): List of the localized name parts: first element is the Group Name, second element is the Property Name of the Property.
+        x (:obj:`float`): X coordinate of 2D point
+        y (:obj:`float`): Y coordinate of 2D point
+
+    """
+    __slots__ = ("x", "y", )
+
+    def __init__(self, x: float, y: float):
+        self.x: float = x
+        self.y: float = y
+
+Point2D.get_classinfo().add_field('x', float)
+Point2D.get_classinfo().add_field('y', float)
+
+
+class UserDefinedPropertyUserId(_ACBaseType):
+    """ The unique identifier of a User-Defined Property, identified by its name.
+
+    Attributes:
+        localizedName (:obj:`list` of :obj:`str`): A two-element list of the localized name parts. The first element is the name of the group the property belongs to, and the second element is the actual name of the property.
         type (:obj:`str`): EMPTY STRING
 
     """
@@ -155,10 +444,10 @@ UserDefinedPropertyUserId.get_classinfo().add_field('type', str, value_set(['Use
 
 
 class BuiltInPropertyUserId(_ACBaseType):
-    """ An object which uniquely identifies a Built-In Property by its name in a human-readable form.
+    """ The unique identifier of a Built-In Property, identified by its name.
 
     Attributes:
-        nonLocalizedName (:obj:`str`): Non-localized name of the Built-In Property.
+        nonLocalizedName (:obj:`str`): The non-localized name of the Built-In Property.
         type (:obj:`str`): EMPTY STRING
 
     """
@@ -173,12 +462,12 @@ BuiltInPropertyUserId.get_classinfo().add_field('type', str, value_set(['BuiltIn
 
 
 class PropertyUserId(_ACUnionType):
-    """ An object which uniquely identifies a Property by its name in human-readable form. May represent a User-Defined or a Built-In Property.
+    """ The unique identifier of a Property, identified by its name. May represent a User-Defined or a Built-In Property.
 
     Attributes:
         type (:obj:`str`): None
-        localizedName (:obj:`list` of :obj:`str`, optional): List of the localized name parts: first element is the Group Name, second element is the Property Name of the Property.
-        nonLocalizedName (:obj:`str`, optional): Non-localized name of the Built-In Property.
+        localizedName (:obj:`list` of :obj:`str`, optional): A two-element list of the localized name parts. The first element is the name of the group the property belongs to, and the second element is the actual name of the property.
+        nonLocalizedName (:obj:`str`, optional): The non-localized name of the Built-In Property.
 
     """
     __slots__ = ("type", "localizedName", "nonLocalizedName", )
@@ -324,7 +613,7 @@ NormalBooleanPropertyValue.get_classinfo().add_field('status', str, value_set(['
 
 
 class NormalLengthPropertyValue(_ACBaseType):
-    """ A length property value containing a real length value. Value is measured in SI (meters).
+    """ A length property value containing a real length value. The value is measured in SI (meters).
 
     Attributes:
         value (:obj:`float`): EMPTY STRING
@@ -345,7 +634,7 @@ NormalLengthPropertyValue.get_classinfo().add_field('status', str, value_set(['n
 
 
 class NormalAreaPropertyValue(_ACBaseType):
-    """ An area property value containing a real area. Value is measured in SI (square meters).
+    """ An area property value containing a real area. The value is measured in SI (square meters).
 
     Attributes:
         value (:obj:`float`): EMPTY STRING
@@ -366,7 +655,7 @@ NormalAreaPropertyValue.get_classinfo().add_field('status', str, value_set(['nor
 
 
 class NormalVolumePropertyValue(_ACBaseType):
-    """ A volume property value containing a real volume. Value is measured in SI (cubic meters).
+    """ A volume property value containing a real volume. The value is measured in SI (cubic meters).
 
     Attributes:
         value (:obj:`float`): EMPTY STRING
@@ -387,7 +676,7 @@ NormalVolumePropertyValue.get_classinfo().add_field('status', str, value_set(['n
 
 
 class NormalAnglePropertyValue(_ACBaseType):
-    """ An angle property value containing a real angle. Value is measured in SI (radians).
+    """ An angle property value containing a real angle. The value is measured in SI (radians).
 
     Attributes:
         value (:obj:`float`): EMPTY STRING
@@ -492,7 +781,7 @@ NormalBooleanListPropertyValue.get_classinfo().add_field('status', str, value_se
 
 
 class NormalLengthListPropertyValue(_ACBaseType):
-    """ A length list property value containing length values in an array. Values are measured in SI (meters).
+    """ A length list property value containing length values in an array. The values are measured in SI (meters).
 
     Attributes:
         value (:obj:`list` of :obj:`float`): EMPTY STRING
@@ -513,7 +802,7 @@ NormalLengthListPropertyValue.get_classinfo().add_field('status', str, value_set
 
 
 class NormalAreaListPropertyValue(_ACBaseType):
-    """ A area list property value containing areas in an array. Values are measured in SI (square meters).
+    """ An area list property value containing areas in an array. The values are measured in SI (square meters).
 
     Attributes:
         value (:obj:`list` of :obj:`float`): EMPTY STRING
@@ -534,7 +823,7 @@ NormalAreaListPropertyValue.get_classinfo().add_field('status', str, value_set([
 
 
 class NormalVolumeListPropertyValue(_ACBaseType):
-    """ A volume list property value containing volumes in an array. Values are measured in SI (cubic meters).
+    """ A volume list property value containing volumes in an array. The values are measured in SI (cubic meters).
 
     Attributes:
         value (:obj:`list` of :obj:`float`): EMPTY STRING
@@ -555,7 +844,7 @@ NormalVolumeListPropertyValue.get_classinfo().add_field('status', str, value_set
 
 
 class NormalAngleListPropertyValue(_ACBaseType):
-    """ A angle list property value containing angles in an array. Values are measured in SI (radians).
+    """ An angle list property value containing angles in an array. The values are measured in SI (radians).
 
     Attributes:
         value (:obj:`list` of :obj:`float`): EMPTY STRING
@@ -647,34 +936,72 @@ DisplayValueEnumId.get_classinfo().add_field('displayValue', str)
 DisplayValueEnumId.get_classinfo().add_field('type', str, value_set(['displayValue']))
 
 
-EnumValueId = DisplayValueEnumId
-""" The identifier of a property enumeration value.
-"""
+class NonLocalizedValueEnumId(_ACBaseType):
+    """ An enumeration value identifier using the nonlocalized value.
+
+    Attributes:
+        nonLocalizedValue (:obj:`str`): EMPTY STRING
+        type (:obj:`str`): EMPTY STRING
+
+    """
+    __slots__ = ("nonLocalizedValue", "type", )
+
+    def __init__(self, nonLocalizedValue: str, type: str = "nonLocalizedValue"):
+        self.nonLocalizedValue: str = nonLocalizedValue
+        self.type: str = type
+
+NonLocalizedValueEnumId.get_classinfo().add_field('nonLocalizedValue', str)
+NonLocalizedValueEnumId.get_classinfo().add_field('type', str, value_set(['nonLocalizedValue']))
+
+
+class EnumValueId(_ACUnionType):
+    """ The identifier of a property enumeration value.
+
+    Attributes:
+        type (:obj:`str`): None
+        displayValue (:obj:`str`, optional): EMPTY STRING
+        nonLocalizedValue (:obj:`str`, optional): EMPTY STRING
+
+    """
+    __slots__ = ("type", "displayValue", "nonLocalizedValue", )
+
+    constructor  = _ConstructUnion(Union[DisplayValueEnumId, NonLocalizedValueEnumId])
+
+    def __new__(cls, type: str, displayValue: Optional[str] = None, nonLocalizedValue: Optional[str] = None):
+        return cls.constructor(type=type, displayValue=displayValue, nonLocalizedValue=nonLocalizedValue)
+
+    def __init__(self, type: str, displayValue: Optional[str] = None, nonLocalizedValue: Optional[str] = None):
+        self.type: str = type
+        self.displayValue: Optional[str] = displayValue
+        self.nonLocalizedValue: Optional[str] = nonLocalizedValue
 
 
 class PossibleEnumValue(_ACBaseType):
-    """ Description of an enumeration value.
+    """ The description of an enumeration value.
 
     Attributes:
         enumValueId (:obj:`EnumValueId`): The identifier of a property enumeration value.
         displayValue (:obj:`str`): Displayed value of the enumeration.
+        nonLocalizedValue (:obj:`str`, optional): Nonlocalized value of the enumeration if there is one.
 
     """
-    __slots__ = ("enumValueId", "displayValue", )
+    __slots__ = ("enumValueId", "displayValue", "nonLocalizedValue", )
 
-    def __init__(self, enumValueId: EnumValueId, displayValue: str):
+    def __init__(self, enumValueId: EnumValueId, displayValue: str, nonLocalizedValue: Optional[str] = None):
         self.enumValueId: EnumValueId = enumValueId
         self.displayValue: str = displayValue
+        self.nonLocalizedValue: Optional[str] = nonLocalizedValue
 
 PossibleEnumValue.get_classinfo().add_field('enumValueId', EnumValueId)
 PossibleEnumValue.get_classinfo().add_field('displayValue', str)
+PossibleEnumValue.get_classinfo().add_field('nonLocalizedValue', Optional[str])
 
 
 class PossibleEnumValuesArrayItem(_ACBaseType):
     """ EMPTY STRING
 
     Attributes:
-        enumValue (:obj:`PossibleEnumValue`): Description of an enumeration value.
+        enumValue (:obj:`PossibleEnumValue`): The description of an enumeration value.
 
     """
     __slots__ = ("enumValue", )
@@ -686,10 +1013,10 @@ PossibleEnumValuesArrayItem.get_classinfo().add_field('enumValue', PossibleEnumV
 
 
 class Error(_ACBaseType):
-    """ Error details.
+    """ The details of an error.
 
     Attributes:
-        code (:obj:`int`): The error code.
+        code (:obj:`int`): The code of the error.
         message (:obj:`str`): The error message.
 
     """
@@ -707,7 +1034,7 @@ class ErrorItem(_ACBaseType):
     """ EMPTY STRING
 
     Attributes:
-        error (:obj:`Error`): Error details.
+        error (:obj:`Error`): The details of an error.
 
     """
     __slots__ = ("error", )
@@ -738,7 +1065,7 @@ class FailedExecutionResult(_ACBaseType):
 
     Attributes:
         success (:obj:`bool`): EMPTY STRING
-        error (:obj:`Error`): Error details.
+        error (:obj:`Error`): The details of an error.
 
     """
     __slots__ = ("success", "error", )
@@ -752,11 +1079,11 @@ FailedExecutionResult.get_classinfo().add_field('error', Error)
 
 
 class ExecutionResult(_ACUnionType):
-    """ The result of the execution for one case.
+    """ The result of the execution.
 
     Attributes:
         success (:obj:`bool`): None
-        error (:obj:`Error`, optional): Error details.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("success", "error", )
@@ -802,10 +1129,10 @@ ElementIdArrayItem.get_classinfo().add_field('elementId', ElementId)
 
 
 class ElementsWrapper(_ACBaseType):
-    """ List of elements.
+    """ A wrapper for a list of elements.
 
     Attributes:
-        elements (:obj:`list` of :obj:`ElementIdArrayItem`): List of the elements.
+        elements (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
 
     """
     __slots__ = ("elements", )
@@ -817,11 +1144,11 @@ ElementsWrapper.get_classinfo().add_field('elements', List[ElementIdArrayItem])
 
 
 class ElementsOrError(_ACUnionType):
-    """ List of elements or error.
+    """ A list of elements or an error.
 
     Attributes:
-        elements (:obj:`list` of :obj:`ElementIdArrayItem`, optional): List of the elements.
-        error (:obj:`Error`, optional): Error details.
+        elements (:obj:`list` of :obj:`ElementIdArrayItem`, optional): A list of elements.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("elements", "error", )
@@ -834,6 +1161,21 @@ class ElementsOrError(_ACUnionType):
     def __init__(self, elements: Optional[List[ElementIdArrayItem]] = None, error: Optional[Error] = None):
         self.elements: Optional[List[ElementIdArrayItem]] = elements
         self.error: Optional[Error] = error
+
+
+class Image(_ACBaseType):
+    """ An image encoded as a Base64 string.
+
+    Attributes:
+        content (:obj:`str`): The image content as a string .
+
+    """
+    __slots__ = ("content", )
+
+    def __init__(self, content: str):
+        self.content: str = content
+
+Image.get_classinfo().add_field('content', str)
 
 
 class NavigatorItemId(_ACBaseType):
@@ -855,8 +1197,8 @@ class PublisherSetId(_ACBaseType):
     """ The identifier of a publisher set.
 
     Attributes:
-        name (:obj:`str`): Name of the publisher set.
-        type (:obj:`str`): Type of the navigator item tree.
+        name (:obj:`str`): The name of the publisher set.
+        type (:obj:`str`): The type of the navigator item tree.
 
     """
     __slots__ = ("name", "type", )
@@ -873,7 +1215,7 @@ class OtherNavigatorTreeId(_ACBaseType):
     """ The identifier of a navigator item tree.
 
     Attributes:
-        type (:obj:`str`): Type of the navigator item tree.
+        type (:obj:`str`): The type of the navigator item tree.
 
     """
     __slots__ = ("type", )
@@ -888,7 +1230,7 @@ class FolderParameters(_ACBaseType):
     """ The parameters of a folder.
 
     Attributes:
-        name (:obj:`str`): The name of the folder to create.
+        name (:obj:`str`): The name of the folder.
 
     """
     __slots__ = ("name", )
@@ -903,8 +1245,8 @@ class NavigatorTreeId(_ACUnionType):
     """ The identifier of a navigator item tree.
 
     Attributes:
-        type (:obj:`str`): Type of the navigator item tree.
-        name (:obj:`str`, optional): Name of the publisher set.
+        type (:obj:`str`): The type of the navigator item tree.
+        name (:obj:`str`, optional): The name of the publisher set.
 
     """
     __slots__ = ("type", "name", )
@@ -920,13 +1262,13 @@ class NavigatorTreeId(_ACUnionType):
 
 
 class BoundingBox2D(_ACBaseType):
-    """ 2D bounding box of an element.
+    """ The 2D bounding box of an element.
 
     Attributes:
-        xMin (:obj:`float`): Minimum X value of bounding box.
-        yMin (:obj:`float`): Minimum Y value of bounding box.
-        xMax (:obj:`float`): Maximum X value of bounding box.
-        yMax (:obj:`float`): Maximum Y value of bounding box.
+        xMin (:obj:`float`): The minimum X value of the bounding box.
+        yMin (:obj:`float`): The minimum Y value of the bounding box.
+        xMax (:obj:`float`): The maximum X value of the bounding box.
+        yMax (:obj:`float`): The maximum Y value of the bounding box.
 
     """
     __slots__ = ("xMin", "yMin", "xMax", "yMax", )
@@ -944,15 +1286,15 @@ BoundingBox2D.get_classinfo().add_field('yMax', float)
 
 
 class BoundingBox3D(_ACBaseType):
-    """ 3D bounding box of an element.
+    """ A 3D bounding box of an element.
 
     Attributes:
-        xMin (:obj:`float`): Minimum X value of bounding box.
-        yMin (:obj:`float`): Minimum Y value of bounding box.
-        zMin (:obj:`float`): Minimum Z value of bounding box.
-        xMax (:obj:`float`): Maximum X value of bounding box.
-        yMax (:obj:`float`): Maximum Y value of bounding box.
-        zMax (:obj:`float`): Maximum Z value of bounding box.
+        xMin (:obj:`float`): The minimum X value of the bounding box.
+        yMin (:obj:`float`): The minimum Y value of the bounding box.
+        zMin (:obj:`float`): The minimum Z value of the bounding box.
+        xMax (:obj:`float`): The maximum X value of the bounding box.
+        yMax (:obj:`float`): The maximum Y value of the bounding box.
+        zMax (:obj:`float`): The maximum Z value of the bounding box.
 
     """
     __slots__ = ("xMin", "yMin", "zMin", "xMax", "yMax", "zMax", )
@@ -973,21 +1315,42 @@ BoundingBox3D.get_classinfo().add_field('yMax', float)
 BoundingBox3D.get_classinfo().add_field('zMax', float)
 
 
-class Subset(_ACBaseType):
-    """ Provides a way to assign IDs to the layouts contained in the subset.
+class RGBColor(_ACBaseType):
+    """ A color model represented via its red, green and blue components.
 
     Attributes:
-        name (:obj:`str`): Defines the name for the layout subset.
-        includeToIDSequence (:obj:`bool`): Indicates whether this subset is included in or excluded from automatic ID assignment.
-        customNumbering (:obj:`bool`): Defines whether the IDs are generated automatically or use a custom numbering.
-        continueNumbering (:obj:`bool`): Continue using the ID assignment of upper levels. Layouts within this subset are going to be assigned IDs as if they were not within this subset, but part of the level above. In this case you are only using the Subset as a logical grouping which has no effect on IDs.
-        useUpperPrefix (:obj:`bool`): Use the prefix and ID of upper levels. Layouts in this subset will be assigned IDs based on the previous layout in the layout book structure.
-        addOwnPrefix (:obj:`bool`): Adds own prefix to the subset.
-        customNumber (:obj:`str`): Specifies the custom subset ID.
-        autoNumber (:obj:`str`): Specifies the automatic subset ID.
-        numberingStyle (:obj:`str`): List of the supported numbering styles.
-        startAt (:obj:`int`): Specifies a number from which the numbering starts.
-        ownPrefix (:obj:`str`): Defines a custom prefix for the subset.
+        red (:obj:`float`): The red component of the color model.
+        green (:obj:`float`): The green component of the color model.
+        blue (:obj:`float`): The blue component of the color model.
+
+    """
+    __slots__ = ("red", "green", "blue", )
+
+    def __init__(self, red: float, green: float, blue: float):
+        self.red: float = red
+        self.green: float = green
+        self.blue: float = blue
+
+RGBColor.get_classinfo().add_field('red', float, maximum(1, False))
+RGBColor.get_classinfo().add_field('green', float, maximum(1, False))
+RGBColor.get_classinfo().add_field('blue', float, maximum(1, False))
+
+
+class Subset(_ACBaseType):
+    """ A set of options used to assign IDs to the layouts contained in the subset.
+
+    Attributes:
+        name (:obj:`str`): The name for the layout subset.
+        includeToIDSequence (:obj:`bool`): Defines whether this subset is included in automatic ID assignment or not.
+        customNumbering (:obj:`bool`): Defines whether the IDs are generated automatically or a custom numbering is used.
+        continueNumbering (:obj:`bool`): Defines whether to continue using the ID assignment of the upper levels or not. If 'true', layouts within this subset are going to be assigned IDs as if they were not within this subset, but part of the level above. In this case you only use the Subset as a logical grouping which has no effect on IDs.
+        useUpperPrefix (:obj:`bool`): Defines whether to use the prefix and ID of the upper levels or not. If 'true', layouts in this subset will be assigned IDs based on the previous layout in the layout book structure.
+        addOwnPrefix (:obj:`bool`): Defines whether to add own prefix to the subset or not.
+        customNumber (:obj:`str`): The custom subset ID.
+        autoNumber (:obj:`str`): The automatic subset ID.
+        numberingStyle (:obj:`str`): A supported numbering style.
+        startAt (:obj:`int`): The starting value of the numbering.
+        ownPrefix (:obj:`str`): The custom prefix for the subset.
 
     """
     __slots__ = ("name", "includeToIDSequence", "customNumbering", "continueNumbering", "useUpperPrefix", "addOwnPrefix", "customNumber", "autoNumber", "numberingStyle", "startAt", "ownPrefix", )
@@ -1022,22 +1385,22 @@ class LayoutParameters(_ACBaseType):
     """ The parameters of the layout.
 
     Attributes:
-        horizontalSize (:obj:`float`): Horizontal size of the layout in millimeters.
-        verticalSize (:obj:`float`): Vertical size of the layout in millimeters.
-        leftMargin (:obj:`float`): Layout margin from the left side of the paper.
-        topMargin (:obj:`float`): Layout margin from the top side of the paper.
-        rightMargin (:obj:`float`): Layout margin from the right side of the paper.
-        bottomMargin (:obj:`float`): Layout margin from the bottom side of the paper.
-        customLayoutNumber (:obj:`str`): Specifies the custom ID.
+        horizontalSize (:obj:`float`): The horizontal size of the layout in millimeters.
+        verticalSize (:obj:`float`): The vertical size of the layout in millimeters.
+        leftMargin (:obj:`float`): The layout margin from the left side of the paper.
+        topMargin (:obj:`float`): The layout margin from the top side of the paper.
+        rightMargin (:obj:`float`): The layout margin from the right side of the paper.
+        bottomMargin (:obj:`float`): The layout margin from the bottom side of the paper.
+        customLayoutNumber (:obj:`str`): The custom ID.
         customLayoutNumbering (:obj:`bool`): Defines whether a unique ID is used for the current layout or not.
-        doNotIncludeInNumbering (:obj:`bool`): Indicates whether this layout is included in or excluded from automatic ID assignment.
-        displayMasterLayoutBelow (:obj:`bool`): Display the master layout above or below the layout.
-        layoutPageNumber (:obj:`int`): Page number of layout when this layout contains multi-page drawings.
+        doNotIncludeInNumbering (:obj:`bool`): Defines whether this layout is included in automatic ID assignment or not.
+        displayMasterLayoutBelow (:obj:`bool`): Defines whether to display the master layout above or below the layout.
+        layoutPageNumber (:obj:`int`): The page number of layout when this layout contains multi-page drawings.
         actPageIndex (:obj:`int`): The actual index of layout inside the multi-page layout.
-        currentRevisionId (:obj:`str`): ID of the current document revision of the layout.
-        currentFinalRevisionId (:obj:`str`): ID with optional suffix of the current document revision of the layout.
-        hasIssuedRevision (:obj:`bool`): One or more issued document revisions have already been created for the layout.
-        hasActualRevision (:obj:`bool`): An open document revision exists for the layout.
+        currentRevisionId (:obj:`str`): The ID of the current document revision of the layout.
+        currentFinalRevisionId (:obj:`str`): The ID with optional suffix of the current document revision of the layout.
+        hasIssuedRevision (:obj:`bool`): Defines whether one or more issued document revisions have already been created for the layout or not.
+        hasActualRevision (:obj:`bool`): Defines whether an open document revision exists for the layout or not.
 
     """
     __slots__ = ("horizontalSize", "verticalSize", "leftMargin", "topMargin", "rightMargin", "bottomMargin", "customLayoutNumber", "customLayoutNumbering", "doNotIncludeInNumbering", "displayMasterLayoutBelow", "layoutPageNumber", "actPageIndex", "currentRevisionId", "currentFinalRevisionId", "hasIssuedRevision", "hasActualRevision", )
@@ -1078,6 +1441,164 @@ LayoutParameters.get_classinfo().add_field('hasIssuedRevision', bool)
 LayoutParameters.get_classinfo().add_field('hasActualRevision', bool)
 
 
+class ComponentId(_ACBaseType):
+    """ The identifier of a component.
+
+    Attributes:
+        guid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
+
+    """
+    __slots__ = ("guid", )
+
+    def __init__(self, guid: UUID):
+        self.guid: UUID = guid
+
+ComponentId.get_classinfo().add_field('guid', UUID)
+
+
+class ElementComponentId(_ACBaseType):
+    """ The identifier of an element's component.
+
+    Attributes:
+        elementId (:obj:`ElementId`): The identifier of an element.
+        componentId (:obj:`ComponentId`): The identifier of a component.
+
+    """
+    __slots__ = ("elementId", "componentId", )
+
+    def __init__(self, elementId: ElementId, componentId: ComponentId):
+        self.elementId: ElementId = elementId
+        self.componentId: ComponentId = componentId
+
+ElementComponentId.get_classinfo().add_field('elementId', ElementId)
+ElementComponentId.get_classinfo().add_field('componentId', ComponentId)
+
+
+class ElementComponentIdArrayItem(_ACBaseType):
+    """ An item of a component array.
+
+    Attributes:
+        elementComponentId (:obj:`ElementComponentId`): The identifier of an element's component.
+
+    """
+    __slots__ = ("elementComponentId", )
+
+    def __init__(self, elementComponentId: ElementComponentId):
+        self.elementComponentId: ElementComponentId = elementComponentId
+
+ElementComponentIdArrayItem.get_classinfo().add_field('elementComponentId', ElementComponentId)
+
+
+class ElementComponentsWrapper(_ACBaseType):
+    """ List of components.
+
+    Attributes:
+        elementComponents (:obj:`list` of :obj:`ElementComponentIdArrayItem`): List of components of elements.
+
+    """
+    __slots__ = ("elementComponents", )
+
+    def __init__(self, elementComponents: List[ElementComponentIdArrayItem]):
+        self.elementComponents: List[ElementComponentIdArrayItem] = elementComponents
+
+ElementComponentsWrapper.get_classinfo().add_field('elementComponents', List[ElementComponentIdArrayItem])
+
+
+class ElementComponentsOrError(_ACUnionType):
+    """ List of components or error.
+
+    Attributes:
+        elementComponents (:obj:`list` of :obj:`ElementComponentIdArrayItem`, optional): List of components of elements.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("elementComponents", "error", )
+
+    constructor  = _ConstructUnion(Union[ElementComponentsWrapper, ErrorItem])
+
+    def __new__(cls, elementComponents: Optional[List[ElementComponentIdArrayItem]] = None, error: Optional[Error] = None):
+        return cls.constructor(elementComponents=elementComponents, error=error)
+
+    def __init__(self, elementComponents: Optional[List[ElementComponentIdArrayItem]] = None, error: Optional[Error] = None):
+        self.elementComponents: Optional[List[ElementComponentIdArrayItem]] = elementComponents
+        self.error: Optional[Error] = error
+
+
+class LayerAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        layerAttribute (:obj:`LayerAttribute`): A layer attribute
+
+    """
+    __slots__ = ("layerAttribute", )
+
+    def __init__(self, layerAttribute: LayerAttribute):
+        self.layerAttribute: LayerAttribute = layerAttribute
+
+LayerAttributeWrapper.get_classinfo().add_field('layerAttribute', LayerAttribute)
+
+
+class FillAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        fillAttribute (:obj:`FillAttribute`): A fill attribute.
+
+    """
+    __slots__ = ("fillAttribute", )
+
+    def __init__(self, fillAttribute: FillAttribute):
+        self.fillAttribute: FillAttribute = fillAttribute
+
+FillAttributeWrapper.get_classinfo().add_field('fillAttribute', FillAttribute)
+
+
+class ProfileAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        profileAttribute (:obj:`ProfileAttribute`): A profile attribute.
+
+    """
+    __slots__ = ("profileAttribute", )
+
+    def __init__(self, profileAttribute: ProfileAttribute):
+        self.profileAttribute: ProfileAttribute = profileAttribute
+
+ProfileAttributeWrapper.get_classinfo().add_field('profileAttribute', ProfileAttribute)
+
+
+class DashItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        dashItem (:obj:`DashItem`): A dash item.
+
+    """
+    __slots__ = ("dashItem", )
+
+    def __init__(self, dashItem: DashItem):
+        self.dashItem: DashItem = dashItem
+
+DashItemWrapper.get_classinfo().add_field('dashItem', DashItem)
+
+
+class LayerCombinationAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        layerCombinationAttribute (:obj:`LayerCombinationAttribute`): A layer combination attribute
+
+    """
+    __slots__ = ("layerCombinationAttribute", )
+
+    def __init__(self, layerCombinationAttribute: LayerCombinationAttribute):
+        self.layerCombinationAttribute: LayerCombinationAttribute = layerCombinationAttribute
+
+LayerCombinationAttributeWrapper.get_classinfo().add_field('layerCombinationAttribute', LayerCombinationAttribute)
+
+
 class ClassificationIdWrapper(_ACBaseType):
     """ 
 
@@ -1097,7 +1618,7 @@ class ClassificationItemDetailsWrapper(_ACBaseType):
     """ 
 
     Attributes:
-        classificationItem (:obj:`ClassificationItemDetails`): Details of a classification item.
+        classificationItem (:obj:`ClassificationItemDetails`): The details of a classification item.
 
     """
     __slots__ = ("classificationItem", )
@@ -1123,6 +1644,21 @@ class EnumValueIdWrapper(_ACBaseType):
 EnumValueIdWrapper.get_classinfo().add_field('enumValueId', EnumValueId)
 
 
+class ImageWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        image (:obj:`Image`): An image encoded as a Base64 string.
+
+    """
+    __slots__ = ("image", )
+
+    def __init__(self, image: Image):
+        self.image: Image = image
+
+ImageWrapper.get_classinfo().add_field('image', Image)
+
+
 class NavigatorItemIdWrapper(_ACBaseType):
     """ 
 
@@ -1142,7 +1678,7 @@ class BoundingBox2DWrapper(_ACBaseType):
     """ 
 
     Attributes:
-        boundingBox2D (:obj:`BoundingBox2D`): 2D bounding box of an element.
+        boundingBox2D (:obj:`BoundingBox2D`): The 2D bounding box of an element.
 
     """
     __slots__ = ("boundingBox2D", )
@@ -1157,7 +1693,7 @@ class BoundingBox3DWrapper(_ACBaseType):
     """ 
 
     Attributes:
-        boundingBox3D (:obj:`BoundingBox3D`): 3D bounding box of an element.
+        boundingBox3D (:obj:`BoundingBox3D`): A 3D bounding box of an element.
 
     """
     __slots__ = ("boundingBox3D", )
@@ -1168,12 +1704,406 @@ class BoundingBox3DWrapper(_ACBaseType):
 BoundingBox3DWrapper.get_classinfo().add_field('boundingBox3D', BoundingBox3D)
 
 
+class AttributeIdOrError(_ACUnionType):
+    """ The attribute's identifier or an error.
+
+    Attributes:
+        attributeId (:obj:`AttributeId`, optional): The identifier of an attribute.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("attributeId", "error", )
+
+    constructor  = _ConstructUnion(Union[AttributeIdWrapperItem, ErrorItem])
+
+    def __new__(cls, attributeId: Optional[AttributeId] = None, error: Optional[Error] = None):
+        return cls.constructor(attributeId=attributeId, error=error)
+
+    def __init__(self, attributeId: Optional[AttributeId] = None, error: Optional[Error] = None):
+        self.attributeId: Optional[AttributeId] = attributeId
+        self.error: Optional[Error] = error
+
+
+class LayerAttributeOrError(_ACUnionType):
+    """ A layer attribute or an error.
+
+    Attributes:
+        layerAttribute (:obj:`LayerAttribute`, optional): A layer attribute
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("layerAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[LayerAttributeWrapper, ErrorItem])
+
+    def __new__(cls, layerAttribute: Optional[LayerAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(layerAttribute=layerAttribute, error=error)
+
+    def __init__(self, layerAttribute: Optional[LayerAttribute] = None, error: Optional[Error] = None):
+        self.layerAttribute: Optional[LayerAttribute] = layerAttribute
+        self.error: Optional[Error] = error
+
+
+class FillAttributeOrError(_ACUnionType):
+    """ A fill attribute or an error.
+
+    Attributes:
+        fillAttribute (:obj:`FillAttribute`, optional): A fill attribute.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("fillAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[FillAttributeWrapper, ErrorItem])
+
+    def __new__(cls, fillAttribute: Optional[FillAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(fillAttribute=fillAttribute, error=error)
+
+    def __init__(self, fillAttribute: Optional[FillAttribute] = None, error: Optional[Error] = None):
+        self.fillAttribute: Optional[FillAttribute] = fillAttribute
+        self.error: Optional[Error] = error
+
+
+class SurfaceAttribute(_ACBaseType):
+    """ A surface attribute.
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        materialType (:obj:`str`): The material type of a surface attribute.
+        ambientReflection (:obj:`int`): The ambient reflection of the surface attribute.
+        diffuseReflection (:obj:`int`): The diffuse reflection of the surface attribute.
+        specularReflection (:obj:`int`): The specular reflection of the surface attribute.
+        transparencyAttenuation (:obj:`int`): The transparency attenuation of the surface attribute.
+        emissionAttenuation (:obj:`int`): The emission attenuation of the surface attribute.
+        surfaceColor (:obj:`RGBColor`): A color model represented via its red, green and blue components.
+        specularColor (:obj:`RGBColor`): A color model represented via its red, green and blue components.
+        emissionColor (:obj:`RGBColor`): A color model represented via its red, green and blue components.
+        fillId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
+        transparency (:obj:`int`): The transparency of the surface attribute.
+        shine (:obj:`int`): The shininess of the surface attribute.
+        texture (:obj:`Texture`, optional): A texture
+
+    """
+    __slots__ = ("header", "materialType", "ambientReflection", "diffuseReflection", "specularReflection", "transparencyAttenuation", "emissionAttenuation", "surfaceColor", "specularColor", "emissionColor", "fillId", "transparency", "shine", "texture", )
+
+    def __init__(self, header: AttributeHeader, materialType: str, ambientReflection: int, diffuseReflection: int, specularReflection: int, transparencyAttenuation: int, emissionAttenuation: int, surfaceColor: RGBColor, specularColor: RGBColor, emissionColor: RGBColor, fillId: AttributeIdOrError, transparency: int, shine: int, texture: Optional[Texture] = None):
+        self.header: AttributeHeader = header
+        self.materialType: str = materialType
+        self.ambientReflection: int = ambientReflection
+        self.diffuseReflection: int = diffuseReflection
+        self.specularReflection: int = specularReflection
+        self.transparencyAttenuation: int = transparencyAttenuation
+        self.emissionAttenuation: int = emissionAttenuation
+        self.surfaceColor: RGBColor = surfaceColor
+        self.specularColor: RGBColor = specularColor
+        self.emissionColor: RGBColor = emissionColor
+        self.fillId: AttributeIdOrError = fillId
+        self.transparency: int = transparency
+        self.shine: int = shine
+        self.texture: Optional[Texture] = texture
+
+SurfaceAttribute.get_classinfo().add_field('header', AttributeHeader)
+SurfaceAttribute.get_classinfo().add_field('materialType', str, value_set(['General', 'Simple', 'Matte', 'Metal', 'Plastic', 'Glass', 'Glowing', 'Constant']))
+SurfaceAttribute.get_classinfo().add_field('ambientReflection', int, maximum(100, False))
+SurfaceAttribute.get_classinfo().add_field('diffuseReflection', int, maximum(100, False))
+SurfaceAttribute.get_classinfo().add_field('specularReflection', int, maximum(100, False))
+SurfaceAttribute.get_classinfo().add_field('transparencyAttenuation', int, maximum(400, False))
+SurfaceAttribute.get_classinfo().add_field('emissionAttenuation', int, maximum(65535, False))
+SurfaceAttribute.get_classinfo().add_field('surfaceColor', RGBColor)
+SurfaceAttribute.get_classinfo().add_field('specularColor', RGBColor)
+SurfaceAttribute.get_classinfo().add_field('emissionColor', RGBColor)
+SurfaceAttribute.get_classinfo().add_field('fillId', AttributeIdOrError)
+SurfaceAttribute.get_classinfo().add_field('transparency', int, maximum(100, False))
+SurfaceAttribute.get_classinfo().add_field('shine', int, maximum(10000, False))
+SurfaceAttribute.get_classinfo().add_field('texture', Optional[Texture])
+
+
+class ProfileAttributeOrError(_ACUnionType):
+    """ A profile attribute or an error.
+
+    Attributes:
+        profileAttribute (:obj:`ProfileAttribute`, optional): A profile attribute.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("profileAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[ProfileAttributeWrapper, ErrorItem])
+
+    def __new__(cls, profileAttribute: Optional[ProfileAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(profileAttribute=profileAttribute, error=error)
+
+    def __init__(self, profileAttribute: Optional[ProfileAttribute] = None, error: Optional[Error] = None):
+        self.profileAttribute: Optional[ProfileAttribute] = profileAttribute
+        self.error: Optional[Error] = error
+
+
+class CompositeLine(_ACBaseType):
+    """ A contour or separator line component for a composite attribute.
+
+    Attributes:
+        lineId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
+        linePenNr (:obj:`int`): The number of the line pen.
+
+    """
+    __slots__ = ("lineId", "linePenNr", )
+
+    def __init__(self, lineId: AttributeIdOrError, linePenNr: int):
+        self.lineId: AttributeIdOrError = lineId
+        self.linePenNr: int = linePenNr
+
+CompositeLine.get_classinfo().add_field('lineId', AttributeIdOrError)
+CompositeLine.get_classinfo().add_field('linePenNr', int)
+
+
+class CompositeLineListItem(_ACBaseType):
+    """ EMPTY STRING
+
+    Attributes:
+        compositeLine (:obj:`CompositeLine`): A contour or separator line component for a composite attribute.
+
+    """
+    __slots__ = ("compositeLine", )
+
+    def __init__(self, compositeLine: CompositeLine):
+        self.compositeLine: CompositeLine = compositeLine
+
+CompositeLineListItem.get_classinfo().add_field('compositeLine', CompositeLine)
+
+
+class CompositeSkin(_ACBaseType):
+    """ A skin component for a composite attribute.
+
+    Attributes:
+        buildingMaterialId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
+        framePenNr (:obj:`int`): The number of the frame pen.
+        thickness (:obj:`float`): The thickness of the composite skin.
+        isCore (:obj:`bool`): Defines whether the composite skin is part of the core or not.
+        isFinish (:obj:`bool`): Defines whether the composite skin is part of the finish or not.
+
+    """
+    __slots__ = ("buildingMaterialId", "framePenNr", "thickness", "isCore", "isFinish", )
+
+    def __init__(self, buildingMaterialId: AttributeIdOrError, framePenNr: int, thickness: float, isCore: bool, isFinish: bool):
+        self.buildingMaterialId: AttributeIdOrError = buildingMaterialId
+        self.framePenNr: int = framePenNr
+        self.thickness: float = thickness
+        self.isCore: bool = isCore
+        self.isFinish: bool = isFinish
+
+CompositeSkin.get_classinfo().add_field('buildingMaterialId', AttributeIdOrError)
+CompositeSkin.get_classinfo().add_field('framePenNr', int)
+CompositeSkin.get_classinfo().add_field('thickness', float)
+CompositeSkin.get_classinfo().add_field('isCore', bool)
+CompositeSkin.get_classinfo().add_field('isFinish', bool)
+
+
+class CompositeSkinListItem(_ACBaseType):
+    """ EMPTY STRING
+
+    Attributes:
+        compositeSkin (:obj:`CompositeSkin`): A skin component for a composite attribute.
+
+    """
+    __slots__ = ("compositeSkin", )
+
+    def __init__(self, compositeSkin: CompositeSkin):
+        self.compositeSkin: CompositeSkin = compositeSkin
+
+CompositeSkinListItem.get_classinfo().add_field('compositeSkin', CompositeSkin)
+
+
+class CompositeAttribute(_ACBaseType):
+    """ A composite attribute.
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        totalThickness (:obj:`float`): The total thickness of the composite.
+        compositeSkins (:obj:`list` of :obj:`CompositeSkinListItem`): A list of composite skins.
+        compositeLines (:obj:`list` of :obj:`CompositeLineListItem`): A list of contour/separator lines for the composite.
+        useWith (:obj:`list` of :obj:`str`): A list of element types.
+
+    """
+    __slots__ = ("header", "totalThickness", "compositeSkins", "compositeLines", "useWith", )
+
+    def __init__(self, header: AttributeHeader, totalThickness: float, compositeSkins: List[CompositeSkinListItem], compositeLines: List[CompositeLineListItem], useWith: List[str]):
+        self.header: AttributeHeader = header
+        self.totalThickness: float = totalThickness
+        self.compositeSkins: List[CompositeSkinListItem] = compositeSkins
+        self.compositeLines: List[CompositeLineListItem] = compositeLines
+        self.useWith: List[str] = useWith
+
+CompositeAttribute.get_classinfo().add_field('header', AttributeHeader)
+CompositeAttribute.get_classinfo().add_field('totalThickness', float)
+CompositeAttribute.get_classinfo().add_field('compositeSkins', List[CompositeSkinListItem])
+CompositeAttribute.get_classinfo().add_field('compositeLines', List[CompositeLineListItem])
+CompositeAttribute.get_classinfo().add_field('useWith', List[str], listitem_validator(value_set(['Wall', 'Column', 'Beam', 'Window', 'Door', 'Object', 'Lamp', 'Slab', 'Roof', 'Mesh', 'Zone', 'CurtainWall', 'Shell', 'Skylight', 'Morph', 'Stair', 'Railing', 'Opening'])))
+
+
+class Pen(_ACBaseType):
+    """ A pen attribute.
+
+    Attributes:
+        name (:obj:`str`): The name of the pen.
+        index (:obj:`int`): The index of the pen.
+        color (:obj:`RGBColor`): A color model represented via its red, green and blue components.
+        weight (:obj:`float`): The thickness of the pen defined in millimeters.
+        description (:obj:`str`): The description of the pen.
+
+    """
+    __slots__ = ("name", "index", "color", "weight", "description", )
+
+    def __init__(self, name: str, index: int, color: RGBColor, weight: float, description: str):
+        self.name: str = name
+        self.index: int = index
+        self.color: RGBColor = color
+        self.weight: float = weight
+        self.description: str = description
+
+Pen.get_classinfo().add_field('name', str, min_length(1))
+Pen.get_classinfo().add_field('index', int, minimum(1, False), maximum(255, False))
+Pen.get_classinfo().add_field('color', RGBColor)
+Pen.get_classinfo().add_field('weight', float)
+Pen.get_classinfo().add_field('description', str)
+
+
+class PenArrayItem(_ACBaseType):
+    """ EMPTY STRING
+
+    Attributes:
+        pen (:obj:`Pen`): A pen attribute.
+
+    """
+    __slots__ = ("pen", )
+
+    def __init__(self, pen: Pen):
+        self.pen: Pen = pen
+
+PenArrayItem.get_classinfo().add_field('pen', Pen)
+
+
+class LineItem(_ACBaseType):
+    """ A line item.
+
+    Attributes:
+        lineItemType (:obj:`str`): The type of a line item.
+        centerOffset (:obj:`float`): The vertical distance from the origin of the symbol line. Used in separator, center dot, and centerline item types.
+        length (:obj:`float`): The length of the item. Used in centerline, right angle, and parallel item types.
+        begPosition (:obj:`Point2D`): EMPTY STRING
+        endPosition (:obj:`Point2D`): EMPTY STRING
+        radius (:obj:`float`): The radius of the item. Used in circle and arc item types.
+        begAngle (:obj:`float`): The beginning angle of the item, measured from the vertical axis. Used in the arc item type.
+        endAngle (:obj:`float`): The ending angle of the item, measured from the vertical axis. Used in the arc item type.
+
+    """
+    __slots__ = ("lineItemType", "centerOffset", "length", "begPosition", "endPosition", "radius", "begAngle", "endAngle", )
+
+    def __init__(self, lineItemType: str, centerOffset: float, length: float, begPosition: Point2D, endPosition: Point2D, radius: float, begAngle: float, endAngle: float):
+        self.lineItemType: str = lineItemType
+        self.centerOffset: float = centerOffset
+        self.length: float = length
+        self.begPosition: Point2D = begPosition
+        self.endPosition: Point2D = endPosition
+        self.radius: float = radius
+        self.begAngle: float = begAngle
+        self.endAngle: float = endAngle
+
+LineItem.get_classinfo().add_field('lineItemType', str, value_set(['IllegalItemType', 'SeparatorItemType', 'CenterDotItemType', 'CenterLineItemType', 'DotItemType', 'RightAngleItemType', 'ParallelItemType', 'LineItemType', 'CircItemType', 'ArcItemType']))
+LineItem.get_classinfo().add_field('centerOffset', float)
+LineItem.get_classinfo().add_field('length', float)
+LineItem.get_classinfo().add_field('begPosition', Point2D)
+LineItem.get_classinfo().add_field('endPosition', Point2D)
+LineItem.get_classinfo().add_field('radius', float)
+LineItem.get_classinfo().add_field('begAngle', float)
+LineItem.get_classinfo().add_field('endAngle', float)
+
+
+class ZoneCategoryAttribute(_ACBaseType):
+    """ A zone category.
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        categoryCode (:obj:`str`): The category code of the zone.
+        stampName (:obj:`str`): The stamp name of the zone category.
+        stampMainGuid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
+        stampRevisionGuid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
+        color (:obj:`RGBColor`): A color model represented via its red, green and blue components.
+
+    """
+    __slots__ = ("header", "categoryCode", "stampName", "stampMainGuid", "stampRevisionGuid", "color", )
+
+    def __init__(self, header: AttributeHeader, categoryCode: str, stampName: str, stampMainGuid: UUID, stampRevisionGuid: UUID, color: RGBColor):
+        self.header: AttributeHeader = header
+        self.categoryCode: str = categoryCode
+        self.stampName: str = stampName
+        self.stampMainGuid: UUID = stampMainGuid
+        self.stampRevisionGuid: UUID = stampRevisionGuid
+        self.color: RGBColor = color
+
+ZoneCategoryAttribute.get_classinfo().add_field('header', AttributeHeader)
+ZoneCategoryAttribute.get_classinfo().add_field('categoryCode', str)
+ZoneCategoryAttribute.get_classinfo().add_field('stampName', str)
+ZoneCategoryAttribute.get_classinfo().add_field('stampMainGuid', UUID)
+ZoneCategoryAttribute.get_classinfo().add_field('stampRevisionGuid', UUID)
+ZoneCategoryAttribute.get_classinfo().add_field('color', RGBColor)
+
+
+class BuildingMaterialAttribute(_ACBaseType):
+    """ A building material attribute
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        id (:obj:`str`): The id of the building material.
+        connectionPriority (:obj:`int`): The connection priority of the building material.
+        cutFillId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
+        cutFillPenIndex (:obj:`int`): The cut fill pen index of the building material.
+        cutSurfaceId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
+
+    """
+    __slots__ = ("header", "id", "connectionPriority", "cutFillId", "cutFillPenIndex", "cutSurfaceId", )
+
+    def __init__(self, header: AttributeHeader, id: str, connectionPriority: int, cutFillId: AttributeIdOrError, cutFillPenIndex: int, cutSurfaceId: AttributeIdOrError):
+        self.header: AttributeHeader = header
+        self.id: str = id
+        self.connectionPriority: int = connectionPriority
+        self.cutFillId: AttributeIdOrError = cutFillId
+        self.cutFillPenIndex: int = cutFillPenIndex
+        self.cutSurfaceId: AttributeIdOrError = cutSurfaceId
+
+BuildingMaterialAttribute.get_classinfo().add_field('header', AttributeHeader)
+BuildingMaterialAttribute.get_classinfo().add_field('id', str)
+BuildingMaterialAttribute.get_classinfo().add_field('connectionPriority', int)
+BuildingMaterialAttribute.get_classinfo().add_field('cutFillId', AttributeIdOrError)
+BuildingMaterialAttribute.get_classinfo().add_field('cutFillPenIndex', int, maximum(255, False))
+BuildingMaterialAttribute.get_classinfo().add_field('cutSurfaceId', AttributeIdOrError)
+
+
+class LayerCombinationAttributeOrError(_ACUnionType):
+    """ A layer combination attribute or an error.
+
+    Attributes:
+        layerCombinationAttribute (:obj:`LayerCombinationAttribute`, optional): A layer combination attribute
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("layerCombinationAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[LayerCombinationAttributeWrapper, ErrorItem])
+
+    def __new__(cls, layerCombinationAttribute: Optional[LayerCombinationAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(layerCombinationAttribute=layerCombinationAttribute, error=error)
+
+    def __init__(self, layerCombinationAttribute: Optional[LayerCombinationAttribute] = None, error: Optional[Error] = None):
+        self.layerCombinationAttribute: Optional[LayerCombinationAttribute] = layerCombinationAttribute
+        self.error: Optional[Error] = error
+
+
 class ClassificationIdOrError(_ACUnionType):
     """ EMPTY STRING
 
     Attributes:
         classificationId (:obj:`ClassificationId`, optional): The element classification identifier.
-        error (:obj:`Error`, optional): Error details.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("classificationId", "error", )
@@ -1189,7 +2119,7 @@ class ClassificationIdOrError(_ACUnionType):
 
 
 class ElementClassification(_ACBaseType):
-    """ Element classification.
+    """ The classification of an element.
 
     Attributes:
         elementId (:obj:`ElementId`): The identifier of an element.
@@ -1210,8 +2140,8 @@ class ClassificationItemOrError(_ACUnionType):
     """ EMPTY STRING
 
     Attributes:
-        classificationItem (:obj:`ClassificationItemDetails`, optional): Details of a classification item.
-        error (:obj:`Error`, optional): Error details.
+        classificationItem (:obj:`ClassificationItemDetails`, optional): The details of a classification item.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("classificationItem", "error", )
@@ -1227,11 +2157,11 @@ class ClassificationItemOrError(_ACUnionType):
 
 
 class PropertyIdOrError(_ACUnionType):
-    """ A property identifier or error.
+    """ A property identifier or an error.
 
     Attributes:
         propertyId (:obj:`PropertyId`, optional): The identifier of a property.
-        error (:obj:`Error`, optional): Error details.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("propertyId", "error", )
@@ -1253,7 +2183,7 @@ class PropertyDefinition(_ACBaseType):
         group (:obj:`PropertyGroup`): A property group.
         name (:obj:`str`): The localized name of the property.
         description (:obj:`str`): The description of the property.
-        possibleEnumValues (:obj:`list` of :obj:`PossibleEnumValuesArrayItem`, optional): List of enumeration values.
+        possibleEnumValues (:obj:`list` of :obj:`PossibleEnumValuesArrayItem`, optional): A list of enumeration values.
 
     """
     __slots__ = ("group", "name", "description", "possibleEnumValues", )
@@ -1295,7 +2225,7 @@ class NormalMultiEnumPropertyValue(_ACBaseType):
     """ A multiple choice enumeration property value containing the IDs of the selected enum values in an array.
 
     Attributes:
-        value (:obj:`list` of :obj:`EnumValueIdWrapper`): List of enumeration identifiers.
+        value (:obj:`list` of :obj:`EnumValueIdWrapper`): A list of enumeration identifiers.
         type (:obj:`str`): EMPTY STRING
         status (:obj:`str`): EMPTY STRING
 
@@ -1312,12 +2242,32 @@ NormalMultiEnumPropertyValue.get_classinfo().add_field('type', str, value_set(['
 NormalMultiEnumPropertyValue.get_classinfo().add_field('status', str, value_set(['normal']))
 
 
-class BoundingBox2DOrError(_ACUnionType):
-    """ A 2D bounding box or error.
+class ImageOrError(_ACUnionType):
+    """ An image or an error.
 
     Attributes:
-        boundingBox2D (:obj:`BoundingBox2D`, optional): 2D bounding box of an element.
-        error (:obj:`Error`, optional): Error details.
+        image (:obj:`Image`, optional): An image encoded as a Base64 string.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("image", "error", )
+
+    constructor  = _ConstructUnion(Union[ImageWrapper, ErrorItem])
+
+    def __new__(cls, image: Optional[Image] = None, error: Optional[Error] = None):
+        return cls.constructor(image=image, error=error)
+
+    def __init__(self, image: Optional[Image] = None, error: Optional[Error] = None):
+        self.image: Optional[Image] = image
+        self.error: Optional[Error] = error
+
+
+class BoundingBox2DOrError(_ACUnionType):
+    """ A 2D bounding box or an error.
+
+    Attributes:
+        boundingBox2D (:obj:`BoundingBox2D`, optional): The 2D bounding box of an element.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("boundingBox2D", "error", )
@@ -1333,11 +2283,11 @@ class BoundingBox2DOrError(_ACUnionType):
 
 
 class BoundingBox3DOrError(_ACUnionType):
-    """ A 3D bounding box or error.
+    """ A 3D bounding box or an error.
 
     Attributes:
-        boundingBox3D (:obj:`BoundingBox3D`, optional): 3D bounding box of an element.
-        error (:obj:`Error`, optional): Error details.
+        boundingBox3D (:obj:`BoundingBox3D`, optional): A 3D bounding box of an element.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("boundingBox3D", "error", )
@@ -1352,11 +2302,86 @@ class BoundingBox3DOrError(_ACUnionType):
         self.error: Optional[Error] = error
 
 
+class SurfaceAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        surfaceAttribute (:obj:`SurfaceAttribute`): A surface attribute.
+
+    """
+    __slots__ = ("surfaceAttribute", )
+
+    def __init__(self, surfaceAttribute: SurfaceAttribute):
+        self.surfaceAttribute: SurfaceAttribute = surfaceAttribute
+
+SurfaceAttributeWrapper.get_classinfo().add_field('surfaceAttribute', SurfaceAttribute)
+
+
+class CompositeAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        compositeAttribute (:obj:`CompositeAttribute`): A composite attribute.
+
+    """
+    __slots__ = ("compositeAttribute", )
+
+    def __init__(self, compositeAttribute: CompositeAttribute):
+        self.compositeAttribute: CompositeAttribute = compositeAttribute
+
+CompositeAttributeWrapper.get_classinfo().add_field('compositeAttribute', CompositeAttribute)
+
+
+class LineItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        lineItem (:obj:`LineItem`): A line item.
+
+    """
+    __slots__ = ("lineItem", )
+
+    def __init__(self, lineItem: LineItem):
+        self.lineItem: LineItem = lineItem
+
+LineItemWrapper.get_classinfo().add_field('lineItem', LineItem)
+
+
+class ZoneCategoryAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        zoneCategoryAttribute (:obj:`ZoneCategoryAttribute`): A zone category.
+
+    """
+    __slots__ = ("zoneCategoryAttribute", )
+
+    def __init__(self, zoneCategoryAttribute: ZoneCategoryAttribute):
+        self.zoneCategoryAttribute: ZoneCategoryAttribute = zoneCategoryAttribute
+
+ZoneCategoryAttributeWrapper.get_classinfo().add_field('zoneCategoryAttribute', ZoneCategoryAttribute)
+
+
+class BuildingMaterialAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        buildingMaterialAttribute (:obj:`BuildingMaterialAttribute`): A building material attribute
+
+    """
+    __slots__ = ("buildingMaterialAttribute", )
+
+    def __init__(self, buildingMaterialAttribute: BuildingMaterialAttribute):
+        self.buildingMaterialAttribute: BuildingMaterialAttribute = buildingMaterialAttribute
+
+BuildingMaterialAttributeWrapper.get_classinfo().add_field('buildingMaterialAttribute', BuildingMaterialAttribute)
+
+
 class ClassificationIdsOrErrorsWrapper(_ACBaseType):
     """ 
 
     Attributes:
-        classificationIds (:obj:`list` of :obj:`ClassificationIdOrError`): The list of element classification identifiers or errors.
+        classificationIds (:obj:`list` of :obj:`ClassificationIdOrError`): A list of element classification identifiers or errors.
 
     """
     __slots__ = ("classificationIds", )
@@ -1382,12 +2407,163 @@ class PropertyDefinitionWrapper(_ACBaseType):
 PropertyDefinitionWrapper.get_classinfo().add_field('propertyDefinition', PropertyDefinition)
 
 
-class ElementClassificationOrError(_ACUnionType):
-    """ Element classification identifiers or error.
+class PenTableAttribute(_ACBaseType):
+    """ A pen table attribute.
 
     Attributes:
-        classificationIds (:obj:`list` of :obj:`ClassificationIdOrError`, optional): The list of element classification identifiers or errors.
-        error (:obj:`Error`, optional): Error details.
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        pens (:obj:`list` of :obj:`PenArrayItem`): A collection of pens in a pen table.
+
+    """
+    __slots__ = ("header", "pens", )
+
+    def __init__(self, header: AttributeHeader, pens: List[PenArrayItem]):
+        self.header: AttributeHeader = header
+        self.pens: List[PenArrayItem] = pens
+
+PenTableAttribute.get_classinfo().add_field('header', AttributeHeader)
+PenTableAttribute.get_classinfo().add_field('pens', List[PenArrayItem])
+
+
+class SurfaceAttributeOrError(_ACUnionType):
+    """ A surface attribute or an error.
+
+    Attributes:
+        surfaceAttribute (:obj:`SurfaceAttribute`, optional): A surface attribute.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("surfaceAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[SurfaceAttributeWrapper, ErrorItem])
+
+    def __new__(cls, surfaceAttribute: Optional[SurfaceAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(surfaceAttribute=surfaceAttribute, error=error)
+
+    def __init__(self, surfaceAttribute: Optional[SurfaceAttribute] = None, error: Optional[Error] = None):
+        self.surfaceAttribute: Optional[SurfaceAttribute] = surfaceAttribute
+        self.error: Optional[Error] = error
+
+
+class CompositeAttributeOrError(_ACUnionType):
+    """ A composite attribute or an error.
+
+    Attributes:
+        compositeAttribute (:obj:`CompositeAttribute`, optional): A composite attribute.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("compositeAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[CompositeAttributeWrapper, ErrorItem])
+
+    def __new__(cls, compositeAttribute: Optional[CompositeAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(compositeAttribute=compositeAttribute, error=error)
+
+    def __init__(self, compositeAttribute: Optional[CompositeAttribute] = None, error: Optional[Error] = None):
+        self.compositeAttribute: Optional[CompositeAttribute] = compositeAttribute
+        self.error: Optional[Error] = error
+
+
+class DashOrLineItem(_ACUnionType):
+    """ A dash or line item.
+
+    Attributes:
+        dashItem (:obj:`DashItem`, optional): A dash item.
+        lineItem (:obj:`LineItem`, optional): A line item.
+
+    """
+    __slots__ = ("dashItem", "lineItem", )
+
+    constructor  = _ConstructUnion(Union[DashItemWrapper, LineItemWrapper])
+
+    def __new__(cls, dashItem: Optional[DashItem] = None, lineItem: Optional[LineItem] = None):
+        return cls.constructor(dashItem=dashItem, lineItem=lineItem)
+
+    def __init__(self, dashItem: Optional[DashItem] = None, lineItem: Optional[LineItem] = None):
+        self.dashItem: Optional[DashItem] = dashItem
+        self.lineItem: Optional[LineItem] = lineItem
+
+
+class LineAttribute(_ACBaseType):
+    """ A line attribute
+
+    Attributes:
+        header (:obj:`AttributeHeader`): The header object of an attribute.
+        appearenceType (:obj:`str`): The appearence type of a line attribute.
+        displayScale (:obj:`float`): The original scale of the line.
+        period (:obj:`float`): The length of the dashed or symbol line's period.
+        height (:obj:`float`): The height of the symbol line.
+        lineType (:obj:`str`): The type of a line attribute.
+        lineItems (:obj:`list` of :obj:`DashOrLineItem`, optional): A list of dash or line items.
+
+    """
+    __slots__ = ("header", "appearenceType", "displayScale", "period", "height", "lineType", "lineItems", )
+
+    def __init__(self, header: AttributeHeader, appearenceType: str, displayScale: float, period: float, height: float, lineType: str, lineItems: Optional[List[DashOrLineItem]] = None):
+        self.header: AttributeHeader = header
+        self.appearenceType: str = appearenceType
+        self.displayScale: float = displayScale
+        self.period: float = period
+        self.height: float = height
+        self.lineType: str = lineType
+        self.lineItems: Optional[List[DashOrLineItem]] = lineItems
+
+LineAttribute.get_classinfo().add_field('header', AttributeHeader)
+LineAttribute.get_classinfo().add_field('appearenceType', str, value_set(['ScaleWithPlan', 'ScaleIndependent']))
+LineAttribute.get_classinfo().add_field('displayScale', float)
+LineAttribute.get_classinfo().add_field('period', float)
+LineAttribute.get_classinfo().add_field('height', float)
+LineAttribute.get_classinfo().add_field('lineType', str, value_set(['SolidLine', 'DashedLine', 'SymbolLine']))
+LineAttribute.get_classinfo().add_field('lineItems', Optional[List[DashOrLineItem]])
+
+
+class ZoneCategoryAttributeOrError(_ACUnionType):
+    """ A zone category attribute or an error.
+
+    Attributes:
+        zoneCategoryAttribute (:obj:`ZoneCategoryAttribute`, optional): A zone category.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("zoneCategoryAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[ZoneCategoryAttributeWrapper, ErrorItem])
+
+    def __new__(cls, zoneCategoryAttribute: Optional[ZoneCategoryAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(zoneCategoryAttribute=zoneCategoryAttribute, error=error)
+
+    def __init__(self, zoneCategoryAttribute: Optional[ZoneCategoryAttribute] = None, error: Optional[Error] = None):
+        self.zoneCategoryAttribute: Optional[ZoneCategoryAttribute] = zoneCategoryAttribute
+        self.error: Optional[Error] = error
+
+
+class BuildingMaterialAttributeOrError(_ACUnionType):
+    """ A building material attribute or an error.
+
+    Attributes:
+        buildingMaterialAttribute (:obj:`BuildingMaterialAttribute`, optional): A building material attribute
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("buildingMaterialAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[BuildingMaterialAttributeWrapper, ErrorItem])
+
+    def __new__(cls, buildingMaterialAttribute: Optional[BuildingMaterialAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(buildingMaterialAttribute=buildingMaterialAttribute, error=error)
+
+    def __init__(self, buildingMaterialAttribute: Optional[BuildingMaterialAttribute] = None, error: Optional[Error] = None):
+        self.buildingMaterialAttribute: Optional[BuildingMaterialAttribute] = buildingMaterialAttribute
+        self.error: Optional[Error] = error
+
+
+class ElementClassificationOrError(_ACUnionType):
+    """ Element classification identifiers or errors.
+
+    Attributes:
+        classificationIds (:obj:`list` of :obj:`ClassificationIdOrError`, optional): A list of element classification identifiers or errors.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("classificationIds", "error", )
@@ -1403,11 +2579,11 @@ class ElementClassificationOrError(_ACUnionType):
 
 
 class PropertyDefinitionOrError(_ACUnionType):
-    """ A property definition or error.
+    """ A property definition or an error.
 
     Attributes:
         propertyDefinition (:obj:`PropertyDefinition`, optional): A property definition.
-        error (:obj:`Error`, optional): Error details.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("propertyDefinition", "error", )
@@ -1422,12 +2598,82 @@ class PropertyDefinitionOrError(_ACUnionType):
         self.error: Optional[Error] = error
 
 
+class PenTableAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        penTableAttribute (:obj:`PenTableAttribute`): A pen table attribute.
+
+    """
+    __slots__ = ("penTableAttribute", )
+
+    def __init__(self, penTableAttribute: PenTableAttribute):
+        self.penTableAttribute: PenTableAttribute = penTableAttribute
+
+PenTableAttributeWrapper.get_classinfo().add_field('penTableAttribute', PenTableAttribute)
+
+
+class LineAttributeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        lineAttribute (:obj:`LineAttribute`): A line attribute
+
+    """
+    __slots__ = ("lineAttribute", )
+
+    def __init__(self, lineAttribute: LineAttribute):
+        self.lineAttribute: LineAttribute = lineAttribute
+
+LineAttributeWrapper.get_classinfo().add_field('lineAttribute', LineAttribute)
+
+
+class PenTableAttributeOrError(_ACUnionType):
+    """ A pen table attribute or an error.
+
+    Attributes:
+        penTableAttribute (:obj:`PenTableAttribute`, optional): A pen table attribute.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("penTableAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[PenTableAttributeWrapper, ErrorItem])
+
+    def __new__(cls, penTableAttribute: Optional[PenTableAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(penTableAttribute=penTableAttribute, error=error)
+
+    def __init__(self, penTableAttribute: Optional[PenTableAttribute] = None, error: Optional[Error] = None):
+        self.penTableAttribute: Optional[PenTableAttribute] = penTableAttribute
+        self.error: Optional[Error] = error
+
+
+class LineAttributeOrError(_ACUnionType):
+    """ A line attribute or an error.
+
+    Attributes:
+        lineAttribute (:obj:`LineAttribute`, optional): A line attribute
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("lineAttribute", "error", )
+
+    constructor  = _ConstructUnion(Union[LineAttributeWrapper, ErrorItem])
+
+    def __new__(cls, lineAttribute: Optional[LineAttribute] = None, error: Optional[Error] = None):
+        return cls.constructor(lineAttribute=lineAttribute, error=error)
+
+    def __init__(self, lineAttribute: Optional[LineAttribute] = None, error: Optional[Error] = None):
+        self.lineAttribute: Optional[LineAttribute] = lineAttribute
+        self.error: Optional[Error] = error
+
+
 class ClassificationItemInTree_: pass
 class ClassificationItemArrayItem(_ACBaseType):
     """ EMPTY STRING
 
     Attributes:
-        classificationItem (:obj:`ClassificationItemInTree_`): Details of a classification item.
+        classificationItem (:obj:`ClassificationItemInTree_`): The details of a classification item.
 
     """
     __slots__ = ("classificationItem", )
@@ -1437,14 +2683,14 @@ class ClassificationItemArrayItem(_ACBaseType):
 
 
 class ClassificationItemInTree(_ACBaseType):
-    """ Details of a classification item.
+    """ The details of a classification item.
 
     Attributes:
         classificationItemId (:obj:`ClassificationItemId`): The identifier of a classification item.
-        id (:obj:`str`): The user specified unique identifier of the classification item.
+        id (:obj:`str`): The unique identifier of the classification item as specified by the user.
         name (:obj:`str`): The display name of the classification item.
         description (:obj:`str`): The description of the classification item.
-        children (:obj:`list` of :obj:`ClassificationItemArrayItem`, optional): The list of classification items.
+        children (:obj:`list` of :obj:`ClassificationItemArrayItem`, optional): A list of classification items.
 
     """
     __slots__ = ("classificationItemId", "id", "name", "description", "children", )
@@ -1472,7 +2718,7 @@ class NormalOrUserUndefinedPropertyValue(_ACUnionType):
     Attributes:
         type (:obj:`str`): None
         status (:obj:`str`): None
-        value (:obj:`float`, :obj:`int`, :obj:`str`, :obj:`bool`, :obj:`list` of :obj:`float`, :obj:`list` of :obj:`int`, :obj:`list` of :obj:`str`, :obj:`list` of :obj:`bool`, :obj:`EnumValueId`, :obj:`list` of :obj:`EnumValueIdWrapper`): None; The identifier of a property enumeration value.; List of enumeration identifiers.
+        value (:obj:`float`, :obj:`int`, :obj:`str`, :obj:`bool`, :obj:`list` of :obj:`float`, :obj:`list` of :obj:`int`, :obj:`list` of :obj:`str`, :obj:`list` of :obj:`bool`, :obj:`EnumValueId`, :obj:`list` of :obj:`EnumValueIdWrapper`): None; The identifier of a property enumeration value.; A list of enumeration identifiers.
 
     """
     __slots__ = ("type", "status", "value", )
@@ -1489,7 +2735,7 @@ class NormalOrUserUndefinedPropertyValue(_ACUnionType):
 
 
 class ElementPropertyValue(_ACBaseType):
-    """ A property value with the identifier of the property and the owner element.
+    """ A property value with the identifiers of the property and its owner element.
 
     Attributes:
         elementId (:obj:`ElementId`): The identifier of an element.
@@ -1515,7 +2761,7 @@ class PropertyValue(_ACUnionType):
     Attributes:
         type (:obj:`str`): None
         status (:obj:`str`): None
-        value (:obj:`float`, :obj:`int`, :obj:`str`, :obj:`bool`, :obj:`list` of :obj:`float`, :obj:`list` of :obj:`int`, :obj:`list` of :obj:`str`, :obj:`list` of :obj:`bool`, :obj:`EnumValueId`, :obj:`list` of :obj:`EnumValueIdWrapper`): None; The identifier of a property enumeration value.; List of enumeration identifiers.
+        value (:obj:`float`, :obj:`int`, :obj:`str`, :obj:`bool`, :obj:`list` of :obj:`float`, :obj:`list` of :obj:`int`, :obj:`list` of :obj:`str`, :obj:`list` of :obj:`bool`, :obj:`EnumValueId`, :obj:`list` of :obj:`EnumValueIdWrapper`): None; The identifier of a property enumeration value.; A list of enumeration identifiers.
 
     """
     __slots__ = ("type", "status", "value", )
@@ -1547,11 +2793,11 @@ PropertyValueWrapper.get_classinfo().add_field('propertyValue', PropertyValue)
 
 
 class PropertyValueOrErrorItem(_ACUnionType):
-    """ Contains a property value or an error for the property.
+    """ A property value or an error
 
     Attributes:
         propertyValue (:obj:`PropertyValue`, optional): A normal, userUndefined, notAvailable or notEvaluated property value.
-        error (:obj:`Error`, optional): Error details.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("propertyValue", "error", )
@@ -1570,7 +2816,7 @@ class PropertyValuesWrapper(_ACBaseType):
     """ 
 
     Attributes:
-        propertyValues (:obj:`list` of :obj:`PropertyValueOrErrorItem`): List of property values.
+        propertyValues (:obj:`list` of :obj:`PropertyValueOrErrorItem`): A list of property values.
 
     """
     __slots__ = ("propertyValues", )
@@ -1582,11 +2828,11 @@ PropertyValuesWrapper.get_classinfo().add_field('propertyValues', List[PropertyV
 
 
 class PropertyValuesOrError(_ACUnionType):
-    """ Contains either a list of property values or an error.
+    """ A list of property values or an error.
 
     Attributes:
-        propertyValues (:obj:`list` of :obj:`PropertyValueOrErrorItem`, optional): List of property values.
-        error (:obj:`Error`, optional): Error details.
+        propertyValues (:obj:`list` of :obj:`PropertyValueOrErrorItem`, optional): A list of property values.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
     __slots__ = ("propertyValues", "error", )
@@ -1606,7 +2852,7 @@ class NavigatorItemArrayItem(_ACBaseType):
     """ EMPTY STRING
 
     Attributes:
-        navigatorItem (:obj:`NavigatorItem_`): Details of a navigator item.
+        navigatorItem (:obj:`NavigatorItem_`): The details of a navigator item.
 
     """
     __slots__ = ("navigatorItem", )
@@ -1616,15 +2862,15 @@ class NavigatorItemArrayItem(_ACBaseType):
 
 
 class NavigatorItem(_ACBaseType):
-    """ Details of a navigator item.
+    """ The details of a navigator item.
 
     Attributes:
         navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
-        prefix (:obj:`str`): Prefix of the name of the navigator item.
-        name (:obj:`str`): Name of the navigator item.
-        type (:obj:`str`): Possible types of a navigator item. Most of the names are self-explanatory, the only exception is 'UndefinedItem', which means that the type of this navigator item cannot be retrieved from ARCHICAD yet.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+        type (:obj:`str`): The types of a navigator item. The 'UndefinedItem' type is used when the actual type of the navigator item cannot be retrieved from ARCHICAD.
         sourceNavigatorItemId (:obj:`NavigatorItemId`, optional): The identifier of a navigator item.
-        children (:obj:`list` of :obj:`NavigatorItemArrayItem`, optional): List of navigator items.
+        children (:obj:`list` of :obj:`NavigatorItemArrayItem`, optional): A list of navigator items.
 
     """
     __slots__ = ("navigatorItemId", "prefix", "name", "type", "sourceNavigatorItemId", "children", )
@@ -1652,7 +2898,7 @@ class NavigatorTree(_ACBaseType):
     """ A tree of navigator items.
 
     Attributes:
-        rootItem (:obj:`NavigatorItem`): Details of a navigator item.
+        rootItem (:obj:`NavigatorItem`): The details of a navigator item.
 
     """
     __slots__ = ("rootItem", )
@@ -1666,6 +2912,21 @@ NavigatorTree.get_classinfo().add_field('rootItem', NavigatorItem)
 class Types:
     """ 
     """
+    AddOnCommandId=AddOnCommandId
+    AddOnCommandIdArrayItem=AddOnCommandIdArrayItem
+    AddOnCommandParameters=AddOnCommandParameters
+    AddOnCommandResponse=AddOnCommandResponse
+    AttributeId=AttributeId
+    AttributeIdWrapperItem=AttributeIdWrapperItem
+    AttributeHeader=AttributeHeader
+    LayerAttribute=LayerAttribute
+    FillAttribute=FillAttribute
+    ProfileModifier=ProfileModifier
+    ProfileModifierListItem=ProfileModifierListItem
+    ProfileAttribute=ProfileAttribute
+    Texture=Texture
+    DashItem=DashItem
+    LayerCombinationAttribute=LayerCombinationAttribute
     ClassificationSystemId=ClassificationSystemId
     ClassificationSystemIdArrayItem=ClassificationSystemIdArrayItem
     ClassificationItemId=ClassificationItemId
@@ -1673,6 +2934,7 @@ class Types:
     ClassificationId=ClassificationId
     ClassificationItemDetails=ClassificationItemDetails
     ClassificationSystem=ClassificationSystem
+    Point2D=Point2D
     UserDefinedPropertyUserId=UserDefinedPropertyUserId
     BuiltInPropertyUserId=BuiltInPropertyUserId
     PropertyUserId=PropertyUserId
@@ -1699,6 +2961,7 @@ class Types:
     NotAvailablePropertyValue=NotAvailablePropertyValue
     NotEvaluatedPropertyValue=NotEvaluatedPropertyValue
     DisplayValueEnumId=DisplayValueEnumId
+    NonLocalizedValueEnumId=NonLocalizedValueEnumId
     EnumValueId=EnumValueId
     PossibleEnumValue=PossibleEnumValue
     PossibleEnumValuesArrayItem=PossibleEnumValuesArrayItem
@@ -1711,6 +2974,7 @@ class Types:
     ElementIdArrayItem=ElementIdArrayItem
     ElementsWrapper=ElementsWrapper
     ElementsOrError=ElementsOrError
+    Image=Image
     NavigatorItemId=NavigatorItemId
     PublisherSetId=PublisherSetId
     OtherNavigatorTreeId=OtherNavigatorTreeId
@@ -1718,14 +2982,42 @@ class Types:
     NavigatorTreeId=NavigatorTreeId
     BoundingBox2D=BoundingBox2D
     BoundingBox3D=BoundingBox3D
+    RGBColor=RGBColor
     Subset=Subset
     LayoutParameters=LayoutParameters
+    ComponentId=ComponentId
+    ElementComponentId=ElementComponentId
+    ElementComponentIdArrayItem=ElementComponentIdArrayItem
+    ElementComponentsWrapper=ElementComponentsWrapper
+    ElementComponentsOrError=ElementComponentsOrError
+    LayerAttributeWrapper=LayerAttributeWrapper
+    FillAttributeWrapper=FillAttributeWrapper
+    ProfileAttributeWrapper=ProfileAttributeWrapper
+    DashItemWrapper=DashItemWrapper
+    LayerCombinationAttributeWrapper=LayerCombinationAttributeWrapper
     ClassificationIdWrapper=ClassificationIdWrapper
     ClassificationItemDetailsWrapper=ClassificationItemDetailsWrapper
     EnumValueIdWrapper=EnumValueIdWrapper
+    ImageWrapper=ImageWrapper
     NavigatorItemIdWrapper=NavigatorItemIdWrapper
     BoundingBox2DWrapper=BoundingBox2DWrapper
     BoundingBox3DWrapper=BoundingBox3DWrapper
+    AttributeIdOrError=AttributeIdOrError
+    LayerAttributeOrError=LayerAttributeOrError
+    FillAttributeOrError=FillAttributeOrError
+    SurfaceAttribute=SurfaceAttribute
+    ProfileAttributeOrError=ProfileAttributeOrError
+    CompositeLine=CompositeLine
+    CompositeLineListItem=CompositeLineListItem
+    CompositeSkin=CompositeSkin
+    CompositeSkinListItem=CompositeSkinListItem
+    CompositeAttribute=CompositeAttribute
+    Pen=Pen
+    PenArrayItem=PenArrayItem
+    LineItem=LineItem
+    ZoneCategoryAttribute=ZoneCategoryAttribute
+    BuildingMaterialAttribute=BuildingMaterialAttribute
+    LayerCombinationAttributeOrError=LayerCombinationAttributeOrError
     ClassificationIdOrError=ClassificationIdOrError
     ElementClassification=ElementClassification
     ClassificationItemOrError=ClassificationItemOrError
@@ -1733,12 +3025,29 @@ class Types:
     PropertyDefinition=PropertyDefinition
     NormalSingleEnumPropertyValue=NormalSingleEnumPropertyValue
     NormalMultiEnumPropertyValue=NormalMultiEnumPropertyValue
+    ImageOrError=ImageOrError
     BoundingBox2DOrError=BoundingBox2DOrError
     BoundingBox3DOrError=BoundingBox3DOrError
+    SurfaceAttributeWrapper=SurfaceAttributeWrapper
+    CompositeAttributeWrapper=CompositeAttributeWrapper
+    LineItemWrapper=LineItemWrapper
+    ZoneCategoryAttributeWrapper=ZoneCategoryAttributeWrapper
+    BuildingMaterialAttributeWrapper=BuildingMaterialAttributeWrapper
     ClassificationIdsOrErrorsWrapper=ClassificationIdsOrErrorsWrapper
     PropertyDefinitionWrapper=PropertyDefinitionWrapper
+    PenTableAttribute=PenTableAttribute
+    SurfaceAttributeOrError=SurfaceAttributeOrError
+    CompositeAttributeOrError=CompositeAttributeOrError
+    DashOrLineItem=DashOrLineItem
+    LineAttribute=LineAttribute
+    ZoneCategoryAttributeOrError=ZoneCategoryAttributeOrError
+    BuildingMaterialAttributeOrError=BuildingMaterialAttributeOrError
     ElementClassificationOrError=ElementClassificationOrError
     PropertyDefinitionOrError=PropertyDefinitionOrError
+    PenTableAttributeWrapper=PenTableAttributeWrapper
+    LineAttributeWrapper=LineAttributeWrapper
+    PenTableAttributeOrError=PenTableAttributeOrError
+    LineAttributeOrError=LineAttributeOrError
     ClassificationItemArrayItem=ClassificationItemArrayItem
     ClassificationItemInTree=ClassificationItemInTree
     NormalOrUserUndefinedPropertyValue=NormalOrUserUndefinedPropertyValue

@@ -6,7 +6,7 @@ import json
 from archicad.acbasetype import _ACBaseType, _ConstructUnion, _ListBuilder
 from archicad.validators import value_set, matches, min_length, max_length, multiple_of, minimum, maximum, listitem_validator, min_items, max_items, unique_items
 
-from .b3000types import NavigatorItemId, LayoutParameters, Subset, FolderParameters, NavigatorItemIdWrapper, ExecutionResult, ElementIdArrayItem, BoundingBox2DOrError, BoundingBox3DOrError, ClassificationSystemId, ClassificationItemArrayItem, ClassificationSystem, PropertyUserId, ClassificationSystemIdArrayItem, ElementClassificationOrError, ClassificationItemIdArrayItem, ClassificationItemOrError, PropertyIdArrayItem, PropertyDefinitionOrError, ClassificationItemId, ElementsOrError, NavigatorTreeId, NavigatorTree, PropertyIdOrError, PropertyValuesOrError, ElementClassification, ElementPropertyValue
+from .b2255types import NavigatorItemId, LayoutParameters, Subset, FolderParameters, NavigatorItemIdWrapper, ExecutionResult, AddOnCommandId, AddOnCommandParameters, AddOnCommandResponse, ElementIdArrayItem, BoundingBox2DOrError, BoundingBox3DOrError, AttributeIdOrError, AttributeIdOrError, ClassificationSystemId, ClassificationItemArrayItem, ClassificationSystem, PropertyUserId, AttributeIdWrapperItem, AttributeIdWrapperItem, BuildingMaterialAttributeOrError, ClassificationSystemIdArrayItem, ElementClassificationOrError, ElementComponentsOrError, CompositeAttributeOrError, ClassificationItemIdArrayItem, ClassificationItemOrError, PropertyIdArrayItem, PropertyDefinitionOrError, ClassificationItemId, ElementsOrError, FillAttributeOrError, LayerAttributeOrError, LayerCombinationAttributeOrError, LineAttributeOrError, NavigatorTreeId, NavigatorTree, PenTableAttributeOrError, RGBColor, ImageOrError, ProfileAttributeOrError, PropertyIdOrError, ElementComponentIdArrayItem, PropertyValuesOrError, PropertyValuesOrError, SurfaceAttributeOrError, ZoneCategoryAttributeOrError, ElementClassification, ElementPropertyValue
 
 
 class UnsucceededCommandCall(Exception):
@@ -86,7 +86,7 @@ class Commands:
         """Creates a new layout subset.
 
         Args:
-            subsetParameters (:obj:`Subset`): Provides a way to assign IDs to the layouts contained in the subset.
+            subsetParameters (:obj:`Subset`): A set of options used to assign IDs to the layouts contained in the subset.
             parentNavigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
 
         Returns:
@@ -139,10 +139,10 @@ class Commands:
         """Deletes items from navigator tree.
 
         Args:
-            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): List of navigator item identifiers.
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
 
         Returns:
-            :obj:`list` of :obj:`ExecutionResult`: Execution result for each input case.
+            :obj:`list` of :obj:`ExecutionResult`: A list of execution results.
 
         """
         class DeleteNavigatorItems_parameters(_ACBaseType):
@@ -158,14 +158,39 @@ class Commands:
         executionResultsListBuilder = _ListBuilder(ExecutionResult)
         return executionResultsListBuilder(result["result"]["executionResults"])
 
+    def ExecuteAddOnCommand(self, addOnCommandId: AddOnCommandId, addOnCommandParameters: Optional[AddOnCommandParameters] = None) -> AddOnCommandResponse:
+        """Executes a command registered in an Add-On.
+
+        Args:
+            addOnCommandId (:obj:`AddOnCommandId`): The identifier of an Add-On command.
+            addOnCommandParameters (:obj:`AddOnCommandParameters`, optional): The input parameters of an Add-On command.
+
+        Returns:
+            :obj:`AddOnCommandResponse`: The response returned by an Add-On command.
+
+        """
+        class ExecuteAddOnCommand_parameters(_ACBaseType):
+            __slots__ = ("addOnCommandId", "addOnCommandParameters", )
+            def __init__(self, addOnCommandId: AddOnCommandId, addOnCommandParameters: Optional[AddOnCommandParameters] = None):
+                self.addOnCommandId: AddOnCommandId = addOnCommandId
+                self.addOnCommandParameters: Optional[AddOnCommandParameters] = addOnCommandParameters
+
+        ExecuteAddOnCommand_parameters.get_classinfo().add_field('addOnCommandId', AddOnCommandId)
+        ExecuteAddOnCommand_parameters.get_classinfo().add_field('addOnCommandParameters', Optional[AddOnCommandParameters])
+
+        result = post_command(self.__req, json.dumps({"command": "API.ExecuteAddOnCommand", "parameters": ExecuteAddOnCommand_parameters(addOnCommandId, addOnCommandParameters).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        return result["result"]["addOnCommandResponse"]
+
     def Get2DBoundingBoxes(self, elements: List[ElementIdArrayItem]) -> List[BoundingBox2DOrError]:
         """Get the 2D bounding box of elements identified by their GUIDs. The bounding box is calculated from the global origin on the floor plan view. The output is the array of the bounding boxes respective to the input GUIDs. Only works for elements detailed in <i>Element Information</i>.
 
         Args:
-            elements (:obj:`list` of :obj:`ElementIdArrayItem`): List of the elements.
+            elements (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
 
         Returns:
-            :obj:`list` of :obj:`BoundingBox2DOrError`: List of element's 2D bounding boxes.
+            :obj:`list` of :obj:`BoundingBox2DOrError`: A list of 2D bounding boxes.
 
         """
         class Get2DBoundingBoxes_parameters(_ACBaseType):
@@ -185,10 +210,10 @@ class Commands:
         """Get the 3D bounding box of elements identified by their GUIDs. The bounding box is calculated from the global origin in the 3D view. The output is the array of the bounding boxes respective to the input GUIDs. Only works for elements detailed in <i>Element Information</i>.
 
         Args:
-            elements (:obj:`list` of :obj:`ElementIdArrayItem`): List of the elements.
+            elements (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
 
         Returns:
-            :obj:`list` of :obj:`BoundingBox3DOrError`: List of element's 3D bounding boxes
+            :obj:`list` of :obj:`BoundingBox3DOrError`: A list of 3D bounding boxes.
 
         """
         class Get3DBoundingBoxes_parameters(_ACBaseType):
@@ -204,6 +229,20 @@ class Commands:
         boundingBoxes3DListBuilder = _ListBuilder(BoundingBox3DOrError)
         return boundingBoxes3DListBuilder(result["result"]["boundingBoxes3D"])
 
+    def GetActivePenTables(self) -> Tuple[AttributeIdOrError, AttributeIdOrError]:
+        """Returns the model view and layout book pen table identifiers.
+
+        Returns:
+            :obj:`AttributeIdOrError`: The attribute's identifier or an error.
+            :obj:`AttributeIdOrError`: The attribute's identifier or an error.
+
+        """
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetActivePenTables"}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        return AttributeIdOrError(**result["result"]["modelViewPenTableId"]), AttributeIdOrError(**result["result"]["layoutBookPenTableId"])
+
     def GetAllClassificationsInSystem(self, classificationSystemId: ClassificationSystemId) -> List[ClassificationItemArrayItem]:
         """Returns the tree of classifications in the given classification system.
 
@@ -211,7 +250,7 @@ class Commands:
             classificationSystemId (:obj:`ClassificationSystemId`): The identifier of a classification system.
 
         Returns:
-            :obj:`list` of :obj:`ClassificationItemArrayItem`: The list of classification items.
+            :obj:`list` of :obj:`ClassificationItemArrayItem`: A list of classification items.
 
         """
         class GetAllClassificationsInSystem_parameters(_ACBaseType):
@@ -231,7 +270,7 @@ class Commands:
         """Returns the list of available classification systems.
 
         Returns:
-            :obj:`list` of :obj:`ClassificationSystem`: The list of classification systems.
+            :obj:`list` of :obj:`ClassificationSystem`: A list of classification systems.
 
         """
 
@@ -245,7 +284,7 @@ class Commands:
         """Returns the identifier of every element in the current plan.
 
         Returns:
-            :obj:`list` of :obj:`ElementIdArrayItem`: List of the elements.
+            :obj:`list` of :obj:`ElementIdArrayItem`: A list of elements.
 
         """
 
@@ -259,7 +298,7 @@ class Commands:
         """Returns the human-readable names of available Property definitions for debug and development purposes.
 
         Returns:
-            :obj:`list` of :obj:`PropertyUserId`: List of PropertyUserId objects.
+            :obj:`list` of :obj:`PropertyUserId`: A list of PropertyUserId objects.
 
         """
 
@@ -269,15 +308,61 @@ class Commands:
         propertiesListBuilder = _ListBuilder(PropertyUserId)
         return propertiesListBuilder(result["result"]["properties"])
 
+    def GetAttributesByType(self, attributeType: str) -> List[AttributeIdWrapperItem]:
+        """Returns the identifier of every attribute of the given type.
+
+        Args:
+            attributeType (:obj:`str`): The type of an attribute.
+
+        Returns:
+            :obj:`list` of :obj:`AttributeIdWrapperItem`: A list of attribute identifiers.
+
+        """
+        class GetAttributesByType_parameters(_ACBaseType):
+            __slots__ = ("attributeType", )
+            def __init__(self, attributeType: str):
+                self.attributeType: str = attributeType
+
+        GetAttributesByType_parameters.get_classinfo().add_field('attributeType', str, value_set(['BuildingMaterial', 'Composite', 'Fill', 'Layer', 'LayerCombination', 'Line', 'PenTable', 'Profile', 'Surface', 'ZoneCategory']))
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetAttributesByType", "parameters": GetAttributesByType_parameters(attributeType).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributeIdsListBuilder = _ListBuilder(AttributeIdWrapperItem)
+        return attributeIdsListBuilder(result["result"]["attributeIds"])
+
+    def GetBuildingMaterialAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[BuildingMaterialAttributeOrError]:
+        """Returns the detailed building material attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`BuildingMaterialAttributeOrError`: A list of building material attributes and potential errors.
+
+        """
+        class GetBuildingMaterialAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetBuildingMaterialAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetBuildingMaterialAttributes", "parameters": GetBuildingMaterialAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(BuildingMaterialAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
     def GetClassificationsOfElements(self, elements: List[ElementIdArrayItem], classificationSystemIds: List[ClassificationSystemIdArrayItem]) -> List[ElementClassificationOrError]:
         """Returns the classification of the given elements in the given classification systems.
 
         Args:
-            elements (:obj:`list` of :obj:`ElementIdArrayItem`): List of the elements.
-            classificationSystemIds (:obj:`list` of :obj:`ClassificationSystemIdArrayItem`): The list of classification system identifiers.
+            elements (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
+            classificationSystemIds (:obj:`list` of :obj:`ClassificationSystemIdArrayItem`): A list of classification system identifiers.
 
         Returns:
-            :obj:`list` of :obj:`ElementClassificationOrError`: The list of element classification identifiers or errors.
+            :obj:`list` of :obj:`ElementClassificationOrError`: A list of element classification identifiers or errors.
 
         """
         class GetClassificationsOfElements_parameters(_ACBaseType):
@@ -295,14 +380,60 @@ class Commands:
         elementClassificationsListBuilder = _ListBuilder(ElementClassificationOrError)
         return elementClassificationsListBuilder(result["result"]["elementClassifications"])
 
+    def GetComponentsOfElements(self, elements: List[ElementIdArrayItem]) -> List[ElementComponentsOrError]:
+        """Returns the identifier of every component for a list of elements. The order of the returned list is the same as the given elements.
+
+        Args:
+            elements (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
+
+        Returns:
+            :obj:`list` of :obj:`ElementComponentsOrError`: Array of component list or error.
+
+        """
+        class GetComponentsOfElements_parameters(_ACBaseType):
+            __slots__ = ("elements", )
+            def __init__(self, elements: List[ElementIdArrayItem]):
+                self.elements: List[ElementIdArrayItem] = elements
+
+        GetComponentsOfElements_parameters.get_classinfo().add_field('elements', List[ElementIdArrayItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetComponentsOfElements", "parameters": GetComponentsOfElements_parameters(elements).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        componentsOfElementsListBuilder = _ListBuilder(ElementComponentsOrError)
+        return componentsOfElementsListBuilder(result["result"]["componentsOfElements"])
+
+    def GetCompositeAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[CompositeAttributeOrError]:
+        """Returns the detailed composite attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`CompositeAttributeOrError`: A list of the composite attributes and potential errors.
+
+        """
+        class GetCompositeAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetCompositeAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetCompositeAttributes", "parameters": GetCompositeAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(CompositeAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
     def GetDetailsOfClassificationItems(self, classificationItemIds: List[ClassificationItemIdArrayItem]) -> List[ClassificationItemOrError]:
         """Returns the details of classification items.
 
         Args:
-            classificationItemIds (:obj:`list` of :obj:`ClassificationItemIdArrayItem`): The list of classification item identifiers.
+            classificationItemIds (:obj:`list` of :obj:`ClassificationItemIdArrayItem`): A list of classification item identifiers.
 
         Returns:
-            :obj:`list` of :obj:`ClassificationItemOrError`: The list of classification items or errors.
+            :obj:`list` of :obj:`ClassificationItemOrError`: A list of classification items or errors.
 
         """
         class GetDetailsOfClassificationItems_parameters(_ACBaseType):
@@ -322,10 +453,10 @@ class Commands:
         """Returns the details of property definitions.
 
         Args:
-            properties (:obj:`list` of :obj:`PropertyIdArrayItem`): The list of property identifiers.
+            properties (:obj:`list` of :obj:`PropertyIdArrayItem`): A list of property identifiers.
 
         Returns:
-            :obj:`list` of :obj:`PropertyDefinitionOrError`: The list of property definitions or errors.
+            :obj:`list` of :obj:`PropertyDefinitionOrError`: A list of property definitions or errors.
 
         """
         class GetDetailsOfProperties_parameters(_ACBaseType):
@@ -348,7 +479,7 @@ class Commands:
             classificationItemId (:obj:`ClassificationItemId`): The identifier of a classification item.
 
         Returns:
-            :obj:`list` of :obj:`ElementIdArrayItem`: List of the elements.
+            :obj:`list` of :obj:`ElementIdArrayItem`: A list of elements.
 
         """
         class GetElementsByClassification_parameters(_ACBaseType):
@@ -371,7 +502,7 @@ class Commands:
             elementType (:obj:`str`): The type of an element.
 
         Returns:
-            :obj:`list` of :obj:`ElementIdArrayItem`: List of the elements.
+            :obj:`list` of :obj:`ElementIdArrayItem`: A list of elements.
 
         """
         class GetElementsByType_parameters(_ACBaseType):
@@ -391,11 +522,11 @@ class Commands:
         """Returns related elements of the given zones. The related elements will be grouped by type. If multiple zones was given, then the order of the returned list is that of the given zones.
 
         Args:
-            zones (:obj:`list` of :obj:`ElementIdArrayItem`): List of the elements.
-            elementTypes (:obj:`list` of :obj:`str`, optional): List of element types.
+            zones (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
+            elementTypes (:obj:`list` of :obj:`str`, optional): A list of element types.
 
         Returns:
-            :obj:`list` of :obj:`ElementsOrError`: List of elements or error.
+            :obj:`list` of :obj:`ElementsOrError`: A list of ElementsOrError items.
 
         """
         class GetElementsRelatedToZones_parameters(_ACBaseType):
@@ -412,6 +543,75 @@ class Commands:
             raise UnsucceededCommandCall(result)
         elementsRelatedToZonesListBuilder = _ListBuilder(ElementsOrError)
         return elementsRelatedToZonesListBuilder(result["result"]["elementsRelatedToZones"])
+
+    def GetFillAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[FillAttributeOrError]:
+        """Returns the detailed fill attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`FillAttributeOrError`: A list of fill attributes and potential errors.
+
+        """
+        class GetFillAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetFillAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetFillAttributes", "parameters": GetFillAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(FillAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
+    def GetLayerAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[LayerAttributeOrError]:
+        """Returns the detailed layer attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`LayerAttributeOrError`: A list of layer attributes and potential errors.
+
+        """
+        class GetLayerAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetLayerAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetLayerAttributes", "parameters": GetLayerAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(LayerAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
+    def GetLayerCombinationAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[LayerCombinationAttributeOrError]:
+        """Returns the detailed layer combination attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`LayerCombinationAttributeOrError`: A list of layer combination attributes and potential errors.
+
+        """
+        class GetLayerCombinationAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetLayerCombinationAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetLayerCombinationAttributes", "parameters": GetLayerCombinationAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(LayerCombinationAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
 
     def GetLayoutSettings(self, layoutNavigatorItemId: NavigatorItemId) -> LayoutParameters:
         """Returns the parameters (settings) of the given layout.
@@ -435,6 +635,29 @@ class Commands:
             raise UnsucceededCommandCall(result)
         return LayoutParameters(**result["result"]["layoutParameters"])
 
+    def GetLineAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[LineAttributeOrError]:
+        """Returns the detailed line attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`LineAttributeOrError`: A list of line attributes and potential errors.
+
+        """
+        class GetLineAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetLineAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetLineAttributes", "parameters": GetLineAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(LineAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
     def GetNavigatorItemTree(self, navigatorTreeId: NavigatorTreeId) -> NavigatorTree:
         """Returns the tree of navigator items.
 
@@ -457,6 +680,29 @@ class Commands:
             raise UnsucceededCommandCall(result)
         return NavigatorTree(**result["result"]["navigatorTree"])
 
+    def GetPenTableAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[PenTableAttributeOrError]:
+        """Returns the detailed pen table attributes (including their pens) identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`PenTableAttributeOrError`: A list of pen table attributes and potential errors.
+
+        """
+        class GetPenTableAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetPenTableAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetPenTableAttributes", "parameters": GetPenTableAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(PenTableAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
     def GetProductInfo(self) -> Tuple[int, int, str]:
         """Accesses the version information from the running ARCHICAD.
 
@@ -472,14 +718,69 @@ class Commands:
             raise UnsucceededCommandCall(result)
         return result["result"]["version"], result["result"]["buildNumber"], result["result"]["languageCode"]
 
+    def GetProfileAttributePreview(self, attributeIds: List[AttributeIdWrapperItem], imageWidth: int, imageHeight: int, backgroundColor: Optional[RGBColor] = None) -> List[ImageOrError]:
+        """Returns the preview image of each requested profile attribute in a base64 string format.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+            imageWidth (:obj:`int`): The width of the preview image.
+            imageHeight (:obj:`int`): The height of the preview image.
+            backgroundColor (:obj:`RGBColor`, optional): A color model represented via its red, green and blue components.
+
+        Returns:
+            :obj:`list` of :obj:`ImageOrError`: A list of images and potential errors.
+
+        """
+        class GetProfileAttributePreview_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", "imageWidth", "imageHeight", "backgroundColor", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem], imageWidth: int, imageHeight: int, backgroundColor: Optional[RGBColor] = None):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+                self.imageWidth: int = imageWidth
+                self.imageHeight: int = imageHeight
+                self.backgroundColor: Optional[RGBColor] = backgroundColor
+
+        GetProfileAttributePreview_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+        GetProfileAttributePreview_parameters.get_classinfo().add_field('imageWidth', int)
+        GetProfileAttributePreview_parameters.get_classinfo().add_field('imageHeight', int)
+        GetProfileAttributePreview_parameters.get_classinfo().add_field('backgroundColor', Optional[RGBColor])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetProfileAttributePreview", "parameters": GetProfileAttributePreview_parameters(attributeIds, imageWidth, imageHeight, backgroundColor).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        previewImagesListBuilder = _ListBuilder(ImageOrError)
+        return previewImagesListBuilder(result["result"]["previewImages"])
+
+    def GetProfileAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[ProfileAttributeOrError]:
+        """Returns the detailed profile attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`ProfileAttributeOrError`: A list of the profile attributes and potential errors.
+
+        """
+        class GetProfileAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetProfileAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetProfileAttributes", "parameters": GetProfileAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(ProfileAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
     def GetPropertyIds(self, properties: List[PropertyUserId]) -> List[PropertyIdOrError]:
         """Returns the identifiers of property definitions for the requested property names.
 
         Args:
-            properties (:obj:`list` of :obj:`PropertyUserId`): List of PropertyUserId objects.
+            properties (:obj:`list` of :obj:`PropertyUserId`): A list of PropertyUserId objects.
 
         Returns:
-            :obj:`list` of :obj:`PropertyIdOrError`: The list of property identifiers or errors.
+            :obj:`list` of :obj:`PropertyIdOrError`: A list of property identifiers or errors.
 
         """
         class GetPropertyIds_parameters(_ACBaseType):
@@ -495,15 +796,41 @@ class Commands:
         propertiesListBuilder = _ListBuilder(PropertyIdOrError)
         return propertiesListBuilder(result["result"]["properties"])
 
+    def GetPropertyValuesOfElementComponents(self, elementComponents: List[ElementComponentIdArrayItem], properties: List[PropertyIdArrayItem]) -> List[PropertyValuesOrError]:
+        """Returns the property values of the components for the given property.
+
+        Args:
+            elementComponents (:obj:`list` of :obj:`ElementComponentIdArrayItem`): List of components of elements.
+            properties (:obj:`list` of :obj:`PropertyIdArrayItem`): A list of property identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`PropertyValuesOrError`: A list of property value lists.
+
+        """
+        class GetPropertyValuesOfElementComponents_parameters(_ACBaseType):
+            __slots__ = ("elementComponents", "properties", )
+            def __init__(self, elementComponents: List[ElementComponentIdArrayItem], properties: List[PropertyIdArrayItem]):
+                self.elementComponents: List[ElementComponentIdArrayItem] = elementComponents
+                self.properties: List[PropertyIdArrayItem] = properties
+
+        GetPropertyValuesOfElementComponents_parameters.get_classinfo().add_field('elementComponents', List[ElementComponentIdArrayItem])
+        GetPropertyValuesOfElementComponents_parameters.get_classinfo().add_field('properties', List[PropertyIdArrayItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetPropertyValuesOfElementComponents", "parameters": GetPropertyValuesOfElementComponents_parameters(elementComponents, properties).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        propertyValuesForElementComponentsListBuilder = _ListBuilder(PropertyValuesOrError)
+        return propertyValuesForElementComponentsListBuilder(result["result"]["propertyValuesForElementComponents"])
+
     def GetPropertyValuesOfElements(self, elements: List[ElementIdArrayItem], properties: List[PropertyIdArrayItem]) -> List[PropertyValuesOrError]:
         """Returns the property values of the elements for the given property.
 
         Args:
-            elements (:obj:`list` of :obj:`ElementIdArrayItem`): List of the elements.
-            properties (:obj:`list` of :obj:`PropertyIdArrayItem`): The list of property identifiers.
+            elements (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
+            properties (:obj:`list` of :obj:`PropertyIdArrayItem`): A list of property identifiers.
 
         Returns:
-            :obj:`list` of :obj:`PropertyValuesOrError`: List of property value lists.
+            :obj:`list` of :obj:`PropertyValuesOrError`: A list of property value lists.
 
         """
         class GetPropertyValuesOfElements_parameters(_ACBaseType):
@@ -534,6 +861,74 @@ class Commands:
             raise UnsucceededCommandCall(result)
         publisherSetNamesListBuilder = _ListBuilder(str)
         return publisherSetNamesListBuilder(result["result"]["publisherSetNames"])
+
+    def GetSurfaceAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[SurfaceAttributeOrError]:
+        """Returns the detailed surface attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`SurfaceAttributeOrError`: A list of surface attributes and potential errors.
+
+        """
+        class GetSurfaceAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetSurfaceAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetSurfaceAttributes", "parameters": GetSurfaceAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(SurfaceAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
+    def GetZoneCategoryAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[ZoneCategoryAttributeOrError]:
+        """Returns the detailed zone category attributes identified by their GUIDs.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`ZoneCategoryAttributeOrError`: A list of zone category attributes and potential errors.
+
+        """
+        class GetZoneCategoryAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        GetZoneCategoryAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetZoneCategoryAttributes", "parameters": GetZoneCategoryAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        attributesListBuilder = _ListBuilder(ZoneCategoryAttributeOrError)
+        return attributesListBuilder(result["result"]["attributes"])
+
+    def IsAddOnCommandAvailable(self, addOnCommandId: AddOnCommandId) -> bool:
+        """Checks if the command is available or not.
+
+        Args:
+            addOnCommandId (:obj:`AddOnCommandId`): The identifier of an Add-On command.
+
+        Returns:
+            :obj:`bool`: Returns true if the command is available.
+
+        """
+        class IsAddOnCommandAvailable_parameters(_ACBaseType):
+            __slots__ = ("addOnCommandId", )
+            def __init__(self, addOnCommandId: AddOnCommandId):
+                self.addOnCommandId: AddOnCommandId = addOnCommandId
+
+        IsAddOnCommandAvailable_parameters.get_classinfo().add_field('addOnCommandId', AddOnCommandId)
+
+        result = post_command(self.__req, json.dumps({"command": "API.IsAddOnCommandAvailable", "parameters": IsAddOnCommandAvailable_parameters(addOnCommandId).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        return result["result"]["available"]
 
     def IsAlive(self) -> bool:
         """Checks if the ARCHICAD connection is alive.
@@ -623,10 +1018,10 @@ class Commands:
         """Sets the classifications of elements. In order to set the classification of an element to unclassified, omit the classificationItemId field.
 
         Args:
-            elementClassifications (:obj:`list` of :obj:`ElementClassification`): The list of element classification identifiers.
+            elementClassifications (:obj:`list` of :obj:`ElementClassification`): A list of element classification identifiers.
 
         Returns:
-            :obj:`list` of :obj:`ExecutionResult`: Execution result for each input case.
+            :obj:`list` of :obj:`ExecutionResult`: A list of execution results.
 
         """
         class SetClassificationsOfElements_parameters(_ACBaseType):
@@ -668,10 +1063,10 @@ class Commands:
         """Sets the property values of elements.
 
         Args:
-            elementPropertyValues (:obj:`list` of :obj:`ElementPropertyValue`): List of element property values.
+            elementPropertyValues (:obj:`list` of :obj:`ElementPropertyValue`): A list of element property values.
 
         Returns:
-            :obj:`list` of :obj:`ExecutionResult`: Execution result for each input case.
+            :obj:`list` of :obj:`ExecutionResult`: A list of execution results.
 
         """
         class SetPropertyValuesOfElements_parameters(_ACBaseType):

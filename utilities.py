@@ -1,7 +1,7 @@
 import os, sys, subprocess
 from typing import Optional, Union, Tuple, List, Callable, Any
-from archicad.releases.ac24.b3000types import *
-from archicad.releases.ac24.b3000commands import *
+from archicad.releases.ac25.b2255types import *
+from archicad.releases.ac25.b2255commands import *
 
 
 def _find_in_tree(treeRootItem, itemattr, childrenattr, criterion) -> list:
