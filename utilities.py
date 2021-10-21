@@ -1,7 +1,7 @@
 import os, sys, subprocess
 from typing import Optional, Union, Tuple, List, Callable, Any
-from archicad.releases.ac25.b2255types import *
-from archicad.releases.ac25.b2255commands import *
+from archicad.releases.ac25.b3000types import *
+from archicad.releases.ac25.b3000commands import *
 
 
 def _find_in_tree(treeRootItem, itemattr, childrenattr, criterion) -> list:
@@ -95,7 +95,7 @@ class Utilities:
         Returns:
             :obj:`str`: The display value of the enumeration property value.
         """
-        return next(p.enumValue.displayValue for p in self.accommands.GetDetailsOfProperties ([propertyId])[0].propertyDefinition.possibleEnumValues if p.enumValue.enumValueId == enumValueId)
+        return next(p.enumValue.displayValue for p in self.accommands.GetDetailsOfProperties ([propertyId])[0].propertyDefinition.possibleEnumValues if p.enumValue.enumValueId.to_dict() == enumValueId.to_dict())
 
 
     def GetValueFromPropertyValue(self, propertyId: PropertyId, propertyValue: PropertyValue) -> Any:

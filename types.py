@@ -90,17 +90,17 @@ class AttributeHeader(_ACBaseType):
     """ The header object of an attribute.
 
     Attributes:
-        id (:obj:`AttributeId`): The identifier of an attribute.
-        name (:obj:`str`): The name of the attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
 
     """
-    __slots__ = ("id", "name", )
+    __slots__ = ("attributeId", "name", )
 
-    def __init__(self, id: AttributeId, name: str):
-        self.id: AttributeId = id
+    def __init__(self, attributeId: AttributeId, name: str):
+        self.attributeId: AttributeId = attributeId
         self.name: str = name
 
-AttributeHeader.get_classinfo().add_field('id', AttributeId)
+AttributeHeader.get_classinfo().add_field('attributeId', AttributeId)
 AttributeHeader.get_classinfo().add_field('name', str)
 
 
@@ -108,23 +108,26 @@ class LayerAttribute(_ACBaseType):
     """ A layer attribute
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         intersectionGroupNr (:obj:`int`): The intersection group number
         isLocked (:obj:`bool`): Defines whether the layer is locked or not.
         isHidden (:obj:`bool`): Defines whether the layer is hidden or not.
         isWireframe (:obj:`bool`): Defines whether the elements placed on this layer are visible as wireframes or a solid model.
 
     """
-    __slots__ = ("header", "intersectionGroupNr", "isLocked", "isHidden", "isWireframe", )
+    __slots__ = ("attributeId", "name", "intersectionGroupNr", "isLocked", "isHidden", "isWireframe", )
 
-    def __init__(self, header: AttributeHeader, intersectionGroupNr: int, isLocked: bool, isHidden: bool, isWireframe: bool):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, intersectionGroupNr: int, isLocked: bool, isHidden: bool, isWireframe: bool):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.intersectionGroupNr: int = intersectionGroupNr
         self.isLocked: bool = isLocked
         self.isHidden: bool = isHidden
         self.isWireframe: bool = isWireframe
 
-LayerAttribute.get_classinfo().add_field('header', AttributeHeader)
+LayerAttribute.get_classinfo().add_field('attributeId', AttributeId)
+LayerAttribute.get_classinfo().add_field('name', str)
 LayerAttribute.get_classinfo().add_field('intersectionGroupNr', int)
 LayerAttribute.get_classinfo().add_field('isLocked', bool)
 LayerAttribute.get_classinfo().add_field('isHidden', bool)
@@ -135,21 +138,27 @@ class FillAttribute(_ACBaseType):
     """ A fill attribute.
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         subType (:obj:`str`): The filling type of a fill attribute.
         pattern (:obj:`int`): The pattern of the fill attribute, stored in a 64 bit unsigned integer, and represented as an 8x8 matrix. Each byte in the value is a row, and the bits are the columns of the matrix.
+        appearanceType (:obj:`str`): The appearance type of a line or fill attribute.
 
     """
-    __slots__ = ("header", "subType", "pattern", )
+    __slots__ = ("attributeId", "name", "subType", "pattern", "appearanceType", )
 
-    def __init__(self, header: AttributeHeader, subType: str, pattern: int):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, subType: str, pattern: int, appearanceType: str):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.subType: str = subType
         self.pattern: int = pattern
+        self.appearanceType: str = appearanceType
 
-FillAttribute.get_classinfo().add_field('header', AttributeHeader)
+FillAttribute.get_classinfo().add_field('attributeId', AttributeId)
+FillAttribute.get_classinfo().add_field('name', str)
 FillAttribute.get_classinfo().add_field('subType', str, value_set(['Vector', 'Symbol', 'Solid', 'Empty', 'LinearGradient', 'RadialGradient', 'Image']))
 FillAttribute.get_classinfo().add_field('pattern', int)
+FillAttribute.get_classinfo().add_field('appearanceType', str, value_set(['ScaleWithPlan', 'ScaleIndependent']))
 
 
 class ProfileModifier(_ACBaseType):
@@ -189,7 +198,8 @@ class ProfileAttribute(_ACBaseType):
     """ A profile attribute.
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         useWith (:obj:`list` of :obj:`str`): A list of element types.
         width (:obj:`float`): The default width (horizontal size) of the profile.
         height (:obj:`float`): The default height (vertical size) of the profile.
@@ -201,10 +211,11 @@ class ProfileAttribute(_ACBaseType):
         profileModifiers (:obj:`list` of :obj:`ProfileModifierListItem`): A list of profile modifiers.
 
     """
-    __slots__ = ("header", "useWith", "width", "height", "minimumWidth", "minimumHeight", "widthStretchable", "heightStretchable", "hasCoreSkin", "profileModifiers", )
+    __slots__ = ("attributeId", "name", "useWith", "width", "height", "minimumWidth", "minimumHeight", "widthStretchable", "heightStretchable", "hasCoreSkin", "profileModifiers", )
 
-    def __init__(self, header: AttributeHeader, useWith: List[str], width: float, height: float, minimumWidth: float, minimumHeight: float, widthStretchable: bool, heightStretchable: bool, hasCoreSkin: bool, profileModifiers: List[ProfileModifierListItem]):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, useWith: List[str], width: float, height: float, minimumWidth: float, minimumHeight: float, widthStretchable: bool, heightStretchable: bool, hasCoreSkin: bool, profileModifiers: List[ProfileModifierListItem]):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.useWith: List[str] = useWith
         self.width: float = width
         self.height: float = height
@@ -215,7 +226,8 @@ class ProfileAttribute(_ACBaseType):
         self.hasCoreSkin: bool = hasCoreSkin
         self.profileModifiers: List[ProfileModifierListItem] = profileModifiers
 
-ProfileAttribute.get_classinfo().add_field('header', AttributeHeader)
+ProfileAttribute.get_classinfo().add_field('attributeId', AttributeId)
+ProfileAttribute.get_classinfo().add_field('name', str)
 ProfileAttribute.get_classinfo().add_field('useWith', List[str], listitem_validator(value_set(['Wall', 'Column', 'Beam', 'Window', 'Door', 'Object', 'Lamp', 'Slab', 'Roof', 'Mesh', 'Zone', 'CurtainWall', 'Shell', 'Skylight', 'Morph', 'Stair', 'Railing', 'Opening'])))
 ProfileAttribute.get_classinfo().add_field('width', float)
 ProfileAttribute.get_classinfo().add_field('height', float)
@@ -264,17 +276,20 @@ class LayerCombinationAttribute(_ACBaseType):
     """ A layer combination attribute
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         layerAttributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
 
     """
-    __slots__ = ("header", "layerAttributeIds", )
+    __slots__ = ("attributeId", "name", "layerAttributeIds", )
 
-    def __init__(self, header: AttributeHeader, layerAttributeIds: List[AttributeIdWrapperItem]):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, layerAttributeIds: List[AttributeIdWrapperItem]):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.layerAttributeIds: List[AttributeIdWrapperItem] = layerAttributeIds
 
-LayerCombinationAttribute.get_classinfo().add_field('header', AttributeHeader)
+LayerCombinationAttribute.get_classinfo().add_field('attributeId', AttributeId)
+LayerCombinationAttribute.get_classinfo().add_field('name', str)
 LayerCombinationAttribute.get_classinfo().add_field('layerAttributeIds', List[AttributeIdWrapperItem])
 
 
@@ -1768,7 +1783,8 @@ class SurfaceAttribute(_ACBaseType):
     """ A surface attribute.
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         materialType (:obj:`str`): The material type of a surface attribute.
         ambientReflection (:obj:`int`): The ambient reflection of the surface attribute.
         diffuseReflection (:obj:`int`): The diffuse reflection of the surface attribute.
@@ -1784,10 +1800,11 @@ class SurfaceAttribute(_ACBaseType):
         texture (:obj:`Texture`, optional): A texture
 
     """
-    __slots__ = ("header", "materialType", "ambientReflection", "diffuseReflection", "specularReflection", "transparencyAttenuation", "emissionAttenuation", "surfaceColor", "specularColor", "emissionColor", "fillId", "transparency", "shine", "texture", )
+    __slots__ = ("attributeId", "name", "materialType", "ambientReflection", "diffuseReflection", "specularReflection", "transparencyAttenuation", "emissionAttenuation", "surfaceColor", "specularColor", "emissionColor", "fillId", "transparency", "shine", "texture", )
 
-    def __init__(self, header: AttributeHeader, materialType: str, ambientReflection: int, diffuseReflection: int, specularReflection: int, transparencyAttenuation: int, emissionAttenuation: int, surfaceColor: RGBColor, specularColor: RGBColor, emissionColor: RGBColor, fillId: AttributeIdOrError, transparency: int, shine: int, texture: Optional[Texture] = None):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, materialType: str, ambientReflection: int, diffuseReflection: int, specularReflection: int, transparencyAttenuation: int, emissionAttenuation: int, surfaceColor: RGBColor, specularColor: RGBColor, emissionColor: RGBColor, fillId: AttributeIdOrError, transparency: int, shine: int, texture: Optional[Texture] = None):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.materialType: str = materialType
         self.ambientReflection: int = ambientReflection
         self.diffuseReflection: int = diffuseReflection
@@ -1802,7 +1819,8 @@ class SurfaceAttribute(_ACBaseType):
         self.shine: int = shine
         self.texture: Optional[Texture] = texture
 
-SurfaceAttribute.get_classinfo().add_field('header', AttributeHeader)
+SurfaceAttribute.get_classinfo().add_field('attributeId', AttributeId)
+SurfaceAttribute.get_classinfo().add_field('name', str)
 SurfaceAttribute.get_classinfo().add_field('materialType', str, value_set(['General', 'Simple', 'Matte', 'Metal', 'Plastic', 'Glass', 'Glowing', 'Constant']))
 SurfaceAttribute.get_classinfo().add_field('ambientReflection', int, maximum(100, False))
 SurfaceAttribute.get_classinfo().add_field('diffuseReflection', int, maximum(100, False))
@@ -1843,17 +1861,17 @@ class CompositeLine(_ACBaseType):
 
     Attributes:
         lineId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
-        linePenNr (:obj:`int`): The number of the line pen.
+        linePenIndex (:obj:`int`, optional): The index number of a pen.
 
     """
-    __slots__ = ("lineId", "linePenNr", )
+    __slots__ = ("lineId", "linePenIndex", )
 
-    def __init__(self, lineId: AttributeIdOrError, linePenNr: int):
+    def __init__(self, lineId: AttributeIdOrError, linePenIndex: Optional[int] = None):
         self.lineId: AttributeIdOrError = lineId
-        self.linePenNr: int = linePenNr
+        self.linePenIndex: Optional[int] = linePenIndex
 
 CompositeLine.get_classinfo().add_field('lineId', AttributeIdOrError)
-CompositeLine.get_classinfo().add_field('linePenNr', int)
+CompositeLine.get_classinfo().add_field('linePenIndex', Optional[int], maximum(255, False))
 
 
 class CompositeLineListItem(_ACBaseType):
@@ -1876,26 +1894,26 @@ class CompositeSkin(_ACBaseType):
 
     Attributes:
         buildingMaterialId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
-        framePenNr (:obj:`int`): The number of the frame pen.
         thickness (:obj:`float`): The thickness of the composite skin.
         isCore (:obj:`bool`): Defines whether the composite skin is part of the core or not.
         isFinish (:obj:`bool`): Defines whether the composite skin is part of the finish or not.
+        framePenIndex (:obj:`int`, optional): The index number of a pen.
 
     """
-    __slots__ = ("buildingMaterialId", "framePenNr", "thickness", "isCore", "isFinish", )
+    __slots__ = ("buildingMaterialId", "thickness", "isCore", "isFinish", "framePenIndex", )
 
-    def __init__(self, buildingMaterialId: AttributeIdOrError, framePenNr: int, thickness: float, isCore: bool, isFinish: bool):
+    def __init__(self, buildingMaterialId: AttributeIdOrError, thickness: float, isCore: bool, isFinish: bool, framePenIndex: Optional[int] = None):
         self.buildingMaterialId: AttributeIdOrError = buildingMaterialId
-        self.framePenNr: int = framePenNr
         self.thickness: float = thickness
         self.isCore: bool = isCore
         self.isFinish: bool = isFinish
+        self.framePenIndex: Optional[int] = framePenIndex
 
 CompositeSkin.get_classinfo().add_field('buildingMaterialId', AttributeIdOrError)
-CompositeSkin.get_classinfo().add_field('framePenNr', int)
 CompositeSkin.get_classinfo().add_field('thickness', float)
 CompositeSkin.get_classinfo().add_field('isCore', bool)
 CompositeSkin.get_classinfo().add_field('isFinish', bool)
+CompositeSkin.get_classinfo().add_field('framePenIndex', Optional[int], maximum(255, False))
 
 
 class CompositeSkinListItem(_ACBaseType):
@@ -1917,23 +1935,26 @@ class CompositeAttribute(_ACBaseType):
     """ A composite attribute.
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         totalThickness (:obj:`float`): The total thickness of the composite.
         compositeSkins (:obj:`list` of :obj:`CompositeSkinListItem`): A list of composite skins.
         compositeLines (:obj:`list` of :obj:`CompositeLineListItem`): A list of contour/separator lines for the composite.
         useWith (:obj:`list` of :obj:`str`): A list of element types.
 
     """
-    __slots__ = ("header", "totalThickness", "compositeSkins", "compositeLines", "useWith", )
+    __slots__ = ("attributeId", "name", "totalThickness", "compositeSkins", "compositeLines", "useWith", )
 
-    def __init__(self, header: AttributeHeader, totalThickness: float, compositeSkins: List[CompositeSkinListItem], compositeLines: List[CompositeLineListItem], useWith: List[str]):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, totalThickness: float, compositeSkins: List[CompositeSkinListItem], compositeLines: List[CompositeLineListItem], useWith: List[str]):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.totalThickness: float = totalThickness
         self.compositeSkins: List[CompositeSkinListItem] = compositeSkins
         self.compositeLines: List[CompositeLineListItem] = compositeLines
         self.useWith: List[str] = useWith
 
-CompositeAttribute.get_classinfo().add_field('header', AttributeHeader)
+CompositeAttribute.get_classinfo().add_field('attributeId', AttributeId)
+CompositeAttribute.get_classinfo().add_field('name', str)
 CompositeAttribute.get_classinfo().add_field('totalThickness', float)
 CompositeAttribute.get_classinfo().add_field('compositeSkins', List[CompositeSkinListItem])
 CompositeAttribute.get_classinfo().add_field('compositeLines', List[CompositeLineListItem])
@@ -1945,7 +1966,7 @@ class Pen(_ACBaseType):
 
     Attributes:
         name (:obj:`str`): The name of the pen.
-        index (:obj:`int`): The index of the pen.
+        index (:obj:`int`): The index number of a pen.
         color (:obj:`RGBColor`): A color model represented via its red, green and blue components.
         weight (:obj:`float`): The thickness of the pen defined in millimeters.
         description (:obj:`str`): The description of the pen.
@@ -1961,7 +1982,7 @@ class Pen(_ACBaseType):
         self.description: str = description
 
 Pen.get_classinfo().add_field('name', str, min_length(1))
-Pen.get_classinfo().add_field('index', int, minimum(1, False), maximum(255, False))
+Pen.get_classinfo().add_field('index', int, maximum(255, False))
 Pen.get_classinfo().add_field('color', RGBColor)
 Pen.get_classinfo().add_field('weight', float)
 Pen.get_classinfo().add_field('description', str)
@@ -2022,7 +2043,8 @@ class ZoneCategoryAttribute(_ACBaseType):
     """ A zone category.
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         categoryCode (:obj:`str`): The category code of the zone.
         stampName (:obj:`str`): The stamp name of the zone category.
         stampMainGuid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
@@ -2030,17 +2052,19 @@ class ZoneCategoryAttribute(_ACBaseType):
         color (:obj:`RGBColor`): A color model represented via its red, green and blue components.
 
     """
-    __slots__ = ("header", "categoryCode", "stampName", "stampMainGuid", "stampRevisionGuid", "color", )
+    __slots__ = ("attributeId", "name", "categoryCode", "stampName", "stampMainGuid", "stampRevisionGuid", "color", )
 
-    def __init__(self, header: AttributeHeader, categoryCode: str, stampName: str, stampMainGuid: UUID, stampRevisionGuid: UUID, color: RGBColor):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, categoryCode: str, stampName: str, stampMainGuid: UUID, stampRevisionGuid: UUID, color: RGBColor):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.categoryCode: str = categoryCode
         self.stampName: str = stampName
         self.stampMainGuid: UUID = stampMainGuid
         self.stampRevisionGuid: UUID = stampRevisionGuid
         self.color: RGBColor = color
 
-ZoneCategoryAttribute.get_classinfo().add_field('header', AttributeHeader)
+ZoneCategoryAttribute.get_classinfo().add_field('attributeId', AttributeId)
+ZoneCategoryAttribute.get_classinfo().add_field('name', str)
 ZoneCategoryAttribute.get_classinfo().add_field('categoryCode', str)
 ZoneCategoryAttribute.get_classinfo().add_field('stampName', str)
 ZoneCategoryAttribute.get_classinfo().add_field('stampMainGuid', UUID)
@@ -2052,25 +2076,28 @@ class BuildingMaterialAttribute(_ACBaseType):
     """ A building material attribute
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         id (:obj:`str`): The id of the building material.
         connectionPriority (:obj:`int`): The connection priority of the building material.
         cutFillId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
-        cutFillPenIndex (:obj:`int`): The cut fill pen index of the building material.
+        cutFillPenIndex (:obj:`int`): The index number of a pen.
         cutSurfaceId (:obj:`AttributeIdOrError`): The attribute's identifier or an error.
 
     """
-    __slots__ = ("header", "id", "connectionPriority", "cutFillId", "cutFillPenIndex", "cutSurfaceId", )
+    __slots__ = ("attributeId", "name", "id", "connectionPriority", "cutFillId", "cutFillPenIndex", "cutSurfaceId", )
 
-    def __init__(self, header: AttributeHeader, id: str, connectionPriority: int, cutFillId: AttributeIdOrError, cutFillPenIndex: int, cutSurfaceId: AttributeIdOrError):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, id: str, connectionPriority: int, cutFillId: AttributeIdOrError, cutFillPenIndex: int, cutSurfaceId: AttributeIdOrError):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.id: str = id
         self.connectionPriority: int = connectionPriority
         self.cutFillId: AttributeIdOrError = cutFillId
         self.cutFillPenIndex: int = cutFillPenIndex
         self.cutSurfaceId: AttributeIdOrError = cutSurfaceId
 
-BuildingMaterialAttribute.get_classinfo().add_field('header', AttributeHeader)
+BuildingMaterialAttribute.get_classinfo().add_field('attributeId', AttributeId)
+BuildingMaterialAttribute.get_classinfo().add_field('name', str)
 BuildingMaterialAttribute.get_classinfo().add_field('id', str)
 BuildingMaterialAttribute.get_classinfo().add_field('connectionPriority', int)
 BuildingMaterialAttribute.get_classinfo().add_field('cutFillId', AttributeIdOrError)
@@ -2411,17 +2438,20 @@ class PenTableAttribute(_ACBaseType):
     """ A pen table attribute.
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
         pens (:obj:`list` of :obj:`PenArrayItem`): A collection of pens in a pen table.
 
     """
-    __slots__ = ("header", "pens", )
+    __slots__ = ("attributeId", "name", "pens", )
 
-    def __init__(self, header: AttributeHeader, pens: List[PenArrayItem]):
-        self.header: AttributeHeader = header
+    def __init__(self, attributeId: AttributeId, name: str, pens: List[PenArrayItem]):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
         self.pens: List[PenArrayItem] = pens
 
-PenTableAttribute.get_classinfo().add_field('header', AttributeHeader)
+PenTableAttribute.get_classinfo().add_field('attributeId', AttributeId)
+PenTableAttribute.get_classinfo().add_field('name', str)
 PenTableAttribute.get_classinfo().add_field('pens', List[PenArrayItem])
 
 
@@ -2489,8 +2519,9 @@ class LineAttribute(_ACBaseType):
     """ A line attribute
 
     Attributes:
-        header (:obj:`AttributeHeader`): The header object of an attribute.
-        appearenceType (:obj:`str`): The appearence type of a line attribute.
+        attributeId (:obj:`AttributeId`): The identifier of an attribute.
+        name (:obj:`str`): The name of an attribute.
+        appearanceType (:obj:`str`): The appearance type of a line or fill attribute.
         displayScale (:obj:`float`): The original scale of the line.
         period (:obj:`float`): The length of the dashed or symbol line's period.
         height (:obj:`float`): The height of the symbol line.
@@ -2498,19 +2529,21 @@ class LineAttribute(_ACBaseType):
         lineItems (:obj:`list` of :obj:`DashOrLineItem`, optional): A list of dash or line items.
 
     """
-    __slots__ = ("header", "appearenceType", "displayScale", "period", "height", "lineType", "lineItems", )
+    __slots__ = ("attributeId", "name", "appearanceType", "displayScale", "period", "height", "lineType", "lineItems", )
 
-    def __init__(self, header: AttributeHeader, appearenceType: str, displayScale: float, period: float, height: float, lineType: str, lineItems: Optional[List[DashOrLineItem]] = None):
-        self.header: AttributeHeader = header
-        self.appearenceType: str = appearenceType
+    def __init__(self, attributeId: AttributeId, name: str, appearanceType: str, displayScale: float, period: float, height: float, lineType: str, lineItems: Optional[List[DashOrLineItem]] = None):
+        self.attributeId: AttributeId = attributeId
+        self.name: str = name
+        self.appearanceType: str = appearanceType
         self.displayScale: float = displayScale
         self.period: float = period
         self.height: float = height
         self.lineType: str = lineType
         self.lineItems: Optional[List[DashOrLineItem]] = lineItems
 
-LineAttribute.get_classinfo().add_field('header', AttributeHeader)
-LineAttribute.get_classinfo().add_field('appearenceType', str, value_set(['ScaleWithPlan', 'ScaleIndependent']))
+LineAttribute.get_classinfo().add_field('attributeId', AttributeId)
+LineAttribute.get_classinfo().add_field('name', str)
+LineAttribute.get_classinfo().add_field('appearanceType', str, value_set(['ScaleWithPlan', 'ScaleIndependent']))
 LineAttribute.get_classinfo().add_field('displayScale', float)
 LineAttribute.get_classinfo().add_field('period', float)
 LineAttribute.get_classinfo().add_field('height', float)
