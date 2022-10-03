@@ -1,4 +1,4 @@
-"""GRAPHISOFT
+"""Graphisoft
 """
 from typing import Dict, Any, List, Tuple, Optional, Union
 from urllib.request import Request, urlopen
@@ -6,7 +6,7 @@ import json
 from archicad.acbasetype import _ACBaseType, _ConstructUnion, _ListBuilder
 from archicad.validators import value_set, matches, min_length, max_length, multiple_of, minimum, maximum, listitem_validator, min_items, max_items, unique_items
 
-from .b3000types import NavigatorItemId, LayoutParameters, Subset, FolderParameters, NavigatorItemIdWrapper, ExecutionResult, AddOnCommandId, AddOnCommandParameters, AddOnCommandResponse, ElementIdArrayItem, BoundingBox2DOrError, BoundingBox3DOrError, AttributeIdOrError, AttributeIdOrError, ClassificationSystemId, ClassificationItemArrayItem, ClassificationSystem, PropertyUserId, AttributeIdWrapperItem, AttributeIdWrapperItem, BuildingMaterialAttributeOrError, ClassificationSystemIdArrayItem, ElementClassificationOrError, ElementComponentsOrError, CompositeAttributeOrError, ClassificationItemIdArrayItem, ClassificationItemOrError, PropertyIdArrayItem, PropertyDefinitionOrError, ClassificationItemId, ElementsOrError, FillAttributeOrError, LayerAttributeOrError, LayerCombinationAttributeOrError, LineAttributeOrError, NavigatorTreeId, NavigatorTree, PenTableAttributeOrError, RGBColor, ImageOrError, ProfileAttributeOrError, PropertyIdOrError, ElementComponentIdArrayItem, PropertyValuesOrError, PropertyValuesOrError, SurfaceAttributeOrError, ZoneCategoryAttributeOrError, ElementClassification, ElementPropertyValue
+from .b3000types import BoundingBox2DOrError, CompositeAttributeOrError, PropertyIdArrayItem, InteriorElevationNavigatorItemOrError, PenTableAttributeOrError, ElementComponentIdArrayItem, AttributeIdOrError, ElementPropertyValue, AttributeFolder, AddOnCommandParameters, ClassificationItemArrayItem, NavigatorItemId, ClassificationItemIdArrayItem, ElementClassificationOrError, FillAttributeOrError, ClassificationSystemId, FolderParameters, PropertyUserId, Subset, BuildingMaterialAttributeOrError, AttributeIdWrapperItem, DetailNavigatorItemOrError, WorksheetNavigatorItemOrError, PropertyIdsOfElementOrError, ClassificationItemOrError, PropertyIdOrError, ElementClassification, LayerAttributeOrError, ClassificationItemId, ImageOrError, ProfileAttributeOrError, ClassificationSystem, PropertyDefinitionAvailabilityOrError, PropertyValuesOrError, AddOnCommandResponse, NavigatorItemIdWrapper, ClassificationSystemOrError, NavigatorItemIdAndTypeOrError, NavigatorTree, LayoutParameters, BoundingBox3DOrError, TypeOfElementOrError, AddOnCommandId, ZoneCategoryAttributeOrError, PropertyDefinitionOrError, BuiltInContainerNavigatorItemOrError, ElevationNavigatorItemOrError, ClassificationSystemIdArrayItem, RGBColor, StoryNavigatorItemOrError, ClassificationItemAvailabilityOrError, ExecutionResult, LineAttributeOrError, LayerCombinationAttributeOrError, PropertyGroupIdArrayItem, PropertyGroupOrError, Document3DNavigatorItemOrError, ElementIdArrayItem, SectionNavigatorItemOrError, AttributeFolderContent, NavigatorTreeId, ElementsOrError, SurfaceAttributeOrError, ElementComponentsOrError
 
 
 class UnsucceededCommandCall(Exception):
@@ -20,7 +20,7 @@ def post_command(req: Request, jsonStr: str) -> Dict[str, Any]:
 
 
 class Commands:
-    """Collection of the ARCHICAD JSON interface commands
+    """Collection of the Archicad JSON interface commands
     """
     def __init__(self, req: Request):
         assert req is not None
@@ -50,6 +50,29 @@ class Commands:
         if not result["succeeded"]:
             raise UnsucceededCommandCall(result)
         return NavigatorItemId(**result["result"]["createdNavigatorItemId"])
+
+    def CreateAttributeFolders(self, attributeFolders: List[AttributeFolder]) -> List[ExecutionResult]:
+        """Creates attribute folders. To create a folder, its full path has to be provided. The command will create all folders along the path, if they do not exist.
+
+        Args:
+            attributeFolders (:obj:`list` of :obj:`AttributeFolder`): A list of attribute folders.
+
+        Returns:
+            :obj:`list` of :obj:`ExecutionResult`: A list of execution results.
+
+        """
+        class CreateAttributeFolders_parameters(_ACBaseType):
+            __slots__ = ("attributeFolders", )
+            def __init__(self, attributeFolders: List[AttributeFolder]):
+                self.attributeFolders: List[AttributeFolder] = attributeFolders
+
+        CreateAttributeFolders_parameters.get_classinfo().add_field('attributeFolders', List[AttributeFolder])
+
+        result = post_command(self.__req, json.dumps({"command": "API.CreateAttributeFolders", "parameters": CreateAttributeFolders_parameters(attributeFolders).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        executionResultsListBuilder = _ListBuilder(ExecutionResult)
+        return executionResultsListBuilder(result["result"]["executionResults"])
 
     def CreateLayout(self, layoutName: str, layoutParameters: LayoutParameters, masterNavigatorItemId: NavigatorItemId, parentNavigatorItemId: NavigatorItemId) -> NavigatorItemId:
         """Creates a new layout.
@@ -134,6 +157,52 @@ class Commands:
         if not result["succeeded"]:
             raise UnsucceededCommandCall(result)
         return NavigatorItemId(**result["result"]["createdFolderNavigatorItemId"])
+
+    def DeleteAttributeFolders(self, attributeFolders: List[AttributeFolder]) -> List[ExecutionResult]:
+        """Deletes attribute folders and all the deletable attributes and folders it contains. To delete a folder, its full path has to be provided.
+
+        Args:
+            attributeFolders (:obj:`list` of :obj:`AttributeFolder`): A list of attribute folders.
+
+        Returns:
+            :obj:`list` of :obj:`ExecutionResult`: A list of execution results.
+
+        """
+        class DeleteAttributeFolders_parameters(_ACBaseType):
+            __slots__ = ("attributeFolders", )
+            def __init__(self, attributeFolders: List[AttributeFolder]):
+                self.attributeFolders: List[AttributeFolder] = attributeFolders
+
+        DeleteAttributeFolders_parameters.get_classinfo().add_field('attributeFolders', List[AttributeFolder])
+
+        result = post_command(self.__req, json.dumps({"command": "API.DeleteAttributeFolders", "parameters": DeleteAttributeFolders_parameters(attributeFolders).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        executionResultsListBuilder = _ListBuilder(ExecutionResult)
+        return executionResultsListBuilder(result["result"]["executionResults"])
+
+    def DeleteAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[ExecutionResult]:
+        """Deletes attributes.
+
+        Args:
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`ExecutionResult`: A list of execution results.
+
+        """
+        class DeleteAttributes_parameters(_ACBaseType):
+            __slots__ = ("attributeIds", )
+            def __init__(self, attributeIds: List[AttributeIdWrapperItem]):
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+        DeleteAttributes_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.DeleteAttributes", "parameters": DeleteAttributes_parameters(attributeIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        executionResultsListBuilder = _ListBuilder(ExecutionResult)
+        return executionResultsListBuilder(result["result"]["executionResults"])
 
     def DeleteNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[ExecutionResult]:
         """Deletes items from navigator tree.
@@ -294,6 +363,78 @@ class Commands:
         elementsListBuilder = _ListBuilder(ElementIdArrayItem)
         return elementsListBuilder(result["result"]["elements"])
 
+    def GetAllPropertyGroupIds(self, propertyType: Optional[str] = None) -> List[PropertyGroupIdArrayItem]:
+        """Returns the identifier of every property group in the current plan. The optional propertyType parameter can be used to filter the results based on the type of the property group (Built-in or User Defined).
+
+        Args:
+            propertyType (:obj:`str`, optional): The type of a property group or a property definition.
+
+        Returns:
+            :obj:`list` of :obj:`PropertyGroupIdArrayItem`: A list of property group identifiers.
+
+        """
+        class GetAllPropertyGroupIds_parameters(_ACBaseType):
+            __slots__ = ("propertyType", )
+            def __init__(self, propertyType: Optional[str] = None):
+                self.propertyType: Optional[str] = propertyType
+
+        GetAllPropertyGroupIds_parameters.get_classinfo().add_field('propertyType', Optional[str], value_set(['UserDefined', 'BuiltIn']))
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetAllPropertyGroupIds", "parameters": GetAllPropertyGroupIds_parameters(propertyType).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        propertyGroupIdsListBuilder = _ListBuilder(PropertyGroupIdArrayItem)
+        return propertyGroupIdsListBuilder(result["result"]["propertyGroupIds"])
+
+    def GetAllPropertyIds(self, propertyType: Optional[str] = None) -> List[PropertyIdArrayItem]:
+        """Returns the identifier of every property in the current plan. The optional propertyType parameter can be used to filter the results based on the type of the property (Built-in or User Defined).
+
+        Args:
+            propertyType (:obj:`str`, optional): The type of a property group or a property definition.
+
+        Returns:
+            :obj:`list` of :obj:`PropertyIdArrayItem`: A list of property identifiers.
+
+        """
+        class GetAllPropertyIds_parameters(_ACBaseType):
+            __slots__ = ("propertyType", )
+            def __init__(self, propertyType: Optional[str] = None):
+                self.propertyType: Optional[str] = propertyType
+
+        GetAllPropertyIds_parameters.get_classinfo().add_field('propertyType', Optional[str], value_set(['UserDefined', 'BuiltIn']))
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetAllPropertyIds", "parameters": GetAllPropertyIds_parameters(propertyType).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        propertyIdsListBuilder = _ListBuilder(PropertyIdArrayItem)
+        return propertyIdsListBuilder(result["result"]["propertyIds"])
+
+    def GetAllPropertyIdsOfElements(self, elements: List[ElementIdArrayItem], propertyType: Optional[str] = None) -> List[PropertyIdsOfElementOrError]:
+        """Returns all property identifiers of the given elements. The optional propertyType parameter can be used to filter the results based on the type of the property (Built-in or User Defined).
+
+        Args:
+            elements (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
+            propertyType (:obj:`str`, optional): The type of a property group or a property definition.
+
+        Returns:
+            :obj:`list` of :obj:`PropertyIdsOfElementOrError`: A list of property identifiers of elements or errors.
+
+        """
+        class GetAllPropertyIdsOfElements_parameters(_ACBaseType):
+            __slots__ = ("elements", "propertyType", )
+            def __init__(self, elements: List[ElementIdArrayItem], propertyType: Optional[str] = None):
+                self.elements: List[ElementIdArrayItem] = elements
+                self.propertyType: Optional[str] = propertyType
+
+        GetAllPropertyIdsOfElements_parameters.get_classinfo().add_field('elements', List[ElementIdArrayItem])
+        GetAllPropertyIdsOfElements_parameters.get_classinfo().add_field('propertyType', Optional[str], value_set(['UserDefined', 'BuiltIn']))
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetAllPropertyIdsOfElements", "parameters": GetAllPropertyIdsOfElements_parameters(elements, propertyType).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        propertyIdsOfElementsListBuilder = _ListBuilder(PropertyIdsOfElementOrError)
+        return propertyIdsOfElementsListBuilder(result["result"]["propertyIdsOfElements"])
+
     def GetAllPropertyNames(self) -> List[PropertyUserId]:
         """Returns the human-readable names of available Property definitions for debug and development purposes.
 
@@ -307,6 +448,50 @@ class Commands:
             raise UnsucceededCommandCall(result)
         propertiesListBuilder = _ListBuilder(PropertyUserId)
         return propertiesListBuilder(result["result"]["properties"])
+
+    def GetAttributeFolder(self, attributeFolder: AttributeFolder) -> AttributeFolder:
+        """Get an attribute folder's path and guid. To get an attribute folder guid, it's full path has to be provided and to get full path, it's guid has to be provided.
+
+        Args:
+            attributeFolder (:obj:`AttributeFolder`): Identifies an attribute folder. The path of the root folder is repesented by empty array.
+
+        Returns:
+            :obj:`AttributeFolder`: Identifies an attribute folder. The path of the root folder is repesented by empty array.
+
+        """
+        class GetAttributeFolder_parameters(_ACBaseType):
+            __slots__ = ("attributeFolder", )
+            def __init__(self, attributeFolder: AttributeFolder):
+                self.attributeFolder: AttributeFolder = attributeFolder
+
+        GetAttributeFolder_parameters.get_classinfo().add_field('attributeFolder', AttributeFolder)
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetAttributeFolder", "parameters": GetAttributeFolder_parameters(attributeFolder).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        return AttributeFolder(**result["result"]["attributeFolder"])
+
+    def GetAttributeFolderContent(self, attributeFolder: AttributeFolder) -> AttributeFolderContent:
+        """Get attribute folder's content, subfolders and attributes. To get an attribute folder's content, it's full path or guid has to be provided.
+
+        Args:
+            attributeFolder (:obj:`AttributeFolder`): Identifies an attribute folder. The path of the root folder is repesented by empty array.
+
+        Returns:
+            :obj:`AttributeFolderContent`: An attribute folder content. Contains subfolders and attributes.
+
+        """
+        class GetAttributeFolderContent_parameters(_ACBaseType):
+            __slots__ = ("attributeFolder", )
+            def __init__(self, attributeFolder: AttributeFolder):
+                self.attributeFolder: AttributeFolder = attributeFolder
+
+        GetAttributeFolderContent_parameters.get_classinfo().add_field('attributeFolder', AttributeFolder)
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetAttributeFolderContent", "parameters": GetAttributeFolderContent_parameters(attributeFolder).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        return AttributeFolderContent(**result["result"]["attributeFolderContent"])
 
     def GetAttributesByType(self, attributeType: str) -> List[AttributeIdWrapperItem]:
         """Returns the identifier of every attribute of the given type.
@@ -354,6 +539,52 @@ class Commands:
         attributesListBuilder = _ListBuilder(BuildingMaterialAttributeOrError)
         return attributesListBuilder(result["result"]["attributes"])
 
+    def GetBuiltInContainerNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[BuiltInContainerNavigatorItemOrError]:
+        """Returns the details of the built-in container navigator items identified by their Ids.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`BuiltInContainerNavigatorItemOrError`: A list of built-in container navigator items.
+
+        """
+        class GetBuiltInContainerNavigatorItems_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetBuiltInContainerNavigatorItems_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetBuiltInContainerNavigatorItems", "parameters": GetBuiltInContainerNavigatorItems_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemsListBuilder = _ListBuilder(BuiltInContainerNavigatorItemOrError)
+        return navigatorItemsListBuilder(result["result"]["navigatorItems"])
+
+    def GetClassificationItemAvailability(self, classificationItemIds: List[ClassificationItemIdArrayItem]) -> List[ClassificationItemAvailabilityOrError]:
+        """Returns the ids of property definitions available for a given classification item.
+
+        Args:
+            classificationItemIds (:obj:`list` of :obj:`ClassificationItemIdArrayItem`): A list of classification item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`ClassificationItemAvailabilityOrError`: A list of classification item avalabilities.
+
+        """
+        class GetClassificationItemAvailability_parameters(_ACBaseType):
+            __slots__ = ("classificationItemIds", )
+            def __init__(self, classificationItemIds: List[ClassificationItemIdArrayItem]):
+                self.classificationItemIds: List[ClassificationItemIdArrayItem] = classificationItemIds
+
+        GetClassificationItemAvailability_parameters.get_classinfo().add_field('classificationItemIds', List[ClassificationItemIdArrayItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetClassificationItemAvailability", "parameters": GetClassificationItemAvailability_parameters(classificationItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        classificationItemAvailabilityListListBuilder = _ListBuilder(ClassificationItemAvailabilityOrError)
+        return classificationItemAvailabilityListListBuilder(result["result"]["classificationItemAvailabilityList"])
+
     def GetClassificationsOfElements(self, elements: List[ElementIdArrayItem], classificationSystemIds: List[ClassificationSystemIdArrayItem]) -> List[ElementClassificationOrError]:
         """Returns the classification of the given elements in the given classification systems.
 
@@ -379,6 +610,43 @@ class Commands:
             raise UnsucceededCommandCall(result)
         elementClassificationsListBuilder = _ListBuilder(ElementClassificationOrError)
         return elementClassificationsListBuilder(result["result"]["elementClassifications"])
+
+    def GetClassificationSystemIds(self) -> List[ClassificationSystemIdArrayItem]:
+        """Returns the list of available classification systems.
+
+        Returns:
+            :obj:`list` of :obj:`ClassificationSystemIdArrayItem`: A list of classification system identifiers.
+
+        """
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetClassificationSystemIds"}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        classificationSystemIdsListBuilder = _ListBuilder(ClassificationSystemIdArrayItem)
+        return classificationSystemIdsListBuilder(result["result"]["classificationSystemIds"])
+
+    def GetClassificationSystems(self, classificationSystemIds: List[ClassificationSystemIdArrayItem]) -> List[ClassificationSystemOrError]:
+        """Returns the details of classification systems identified by their GUIDs.
+
+        Args:
+            classificationSystemIds (:obj:`list` of :obj:`ClassificationSystemIdArrayItem`): A list of classification system identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`ClassificationSystemOrError`: A list of classification systems or errors.
+
+        """
+        class GetClassificationSystems_parameters(_ACBaseType):
+            __slots__ = ("classificationSystemIds", )
+            def __init__(self, classificationSystemIds: List[ClassificationSystemIdArrayItem]):
+                self.classificationSystemIds: List[ClassificationSystemIdArrayItem] = classificationSystemIds
+
+        GetClassificationSystems_parameters.get_classinfo().add_field('classificationSystemIds', List[ClassificationSystemIdArrayItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetClassificationSystems", "parameters": GetClassificationSystems_parameters(classificationSystemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        classificationSystemsListBuilder = _ListBuilder(ClassificationSystemOrError)
+        return classificationSystemsListBuilder(result["result"]["classificationSystems"])
 
     def GetComponentsOfElements(self, elements: List[ElementIdArrayItem]) -> List[ElementComponentsOrError]:
         """Returns the identifier of every component for a list of elements. The order of the returned list is the same as the given elements.
@@ -426,6 +694,29 @@ class Commands:
         attributesListBuilder = _ListBuilder(CompositeAttributeOrError)
         return attributesListBuilder(result["result"]["attributes"])
 
+    def GetDetailNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[DetailNavigatorItemOrError]:
+        """Returns the details of the detail navigator items identified by their Ids.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`DetailNavigatorItemOrError`: A list of detail navigator items.
+
+        """
+        class GetDetailNavigatorItems_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetDetailNavigatorItems_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetDetailNavigatorItems", "parameters": GetDetailNavigatorItems_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemsListBuilder = _ListBuilder(DetailNavigatorItemOrError)
+        return navigatorItemsListBuilder(result["result"]["navigatorItems"])
+
     def GetDetailsOfClassificationItems(self, classificationItemIds: List[ClassificationItemIdArrayItem]) -> List[ClassificationItemOrError]:
         """Returns the details of classification items.
 
@@ -471,6 +762,29 @@ class Commands:
             raise UnsucceededCommandCall(result)
         propertyDefinitionsListBuilder = _ListBuilder(PropertyDefinitionOrError)
         return propertyDefinitionsListBuilder(result["result"]["propertyDefinitions"])
+
+    def GetDocument3DNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[Document3DNavigatorItemOrError]:
+        """Returns the details of the 3D document navigator items identified by their Ids.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`Document3DNavigatorItemOrError`: A list of 3D document navigator items.
+
+        """
+        class GetDocument3DNavigatorItems_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetDocument3DNavigatorItems_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetDocument3DNavigatorItems", "parameters": GetDocument3DNavigatorItems_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemsListBuilder = _ListBuilder(Document3DNavigatorItemOrError)
+        return navigatorItemsListBuilder(result["result"]["navigatorItems"])
 
     def GetElementsByClassification(self, classificationItemId: ClassificationItemId) -> List[ElementIdArrayItem]:
         """Returns the identifier of every element with the given classification identifier.
@@ -544,6 +858,29 @@ class Commands:
         elementsRelatedToZonesListBuilder = _ListBuilder(ElementsOrError)
         return elementsRelatedToZonesListBuilder(result["result"]["elementsRelatedToZones"])
 
+    def GetElevationNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[ElevationNavigatorItemOrError]:
+        """Returns the detailed elevation navigator items identified by their Ids.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`ElevationNavigatorItemOrError`: A list of elevation navigator items.
+
+        """
+        class GetElevationNavigatorItems_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetElevationNavigatorItems_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetElevationNavigatorItems", "parameters": GetElevationNavigatorItems_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemsListBuilder = _ListBuilder(ElevationNavigatorItemOrError)
+        return navigatorItemsListBuilder(result["result"]["navigatorItems"])
+
     def GetFillAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[FillAttributeOrError]:
         """Returns the detailed fill attributes identified by their GUIDs.
 
@@ -566,6 +903,29 @@ class Commands:
             raise UnsucceededCommandCall(result)
         attributesListBuilder = _ListBuilder(FillAttributeOrError)
         return attributesListBuilder(result["result"]["attributes"])
+
+    def GetInteriorElevationNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[InteriorElevationNavigatorItemOrError]:
+        """Returns the details of the interior elevation navigator items identified by their Ids.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`InteriorElevationNavigatorItemOrError`: A list of interior elevation navigator items.
+
+        """
+        class GetInteriorElevationNavigatorItems_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetInteriorElevationNavigatorItems_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetInteriorElevationNavigatorItems", "parameters": GetInteriorElevationNavigatorItems_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemsListBuilder = _ListBuilder(InteriorElevationNavigatorItemOrError)
+        return navigatorItemsListBuilder(result["result"]["navigatorItems"])
 
     def GetLayerAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[LayerAttributeOrError]:
         """Returns the detailed layer attributes identified by their GUIDs.
@@ -658,6 +1018,29 @@ class Commands:
         attributesListBuilder = _ListBuilder(LineAttributeOrError)
         return attributesListBuilder(result["result"]["attributes"])
 
+    def GetNavigatorItemsType(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[NavigatorItemIdAndTypeOrError]:
+        """Returns all navigator item types based on the navigator item identifiers given. An error is returned for each identifier that is not found.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`NavigatorItemIdAndTypeOrError`: A list of objects that consist of a navigator item identifier and a type.
+
+        """
+        class GetNavigatorItemsType_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetNavigatorItemsType_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetNavigatorItemsType", "parameters": GetNavigatorItemsType_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemIdAndTypeListListBuilder = _ListBuilder(NavigatorItemIdAndTypeOrError)
+        return navigatorItemIdAndTypeListListBuilder(result["result"]["navigatorItemIdAndTypeList"])
+
     def GetNavigatorItemTree(self, navigatorTreeId: NavigatorTreeId) -> NavigatorTree:
         """Returns the tree of navigator items.
 
@@ -704,12 +1087,12 @@ class Commands:
         return attributesListBuilder(result["result"]["attributes"])
 
     def GetProductInfo(self) -> Tuple[int, int, str]:
-        """Accesses the version information from the running ARCHICAD.
+        """Accesses the version information from the running Archicad.
 
         Returns:
-            :obj:`int`: The version of the running ARCHICAD.
-            :obj:`int`: The build number of the running ARCHICAD.
-            :obj:`str`: The language code of the running ARCHICAD.
+            :obj:`int`: The version of the running Archicad.
+            :obj:`int`: The build number of the running Archicad.
+            :obj:`str`: The language code of the running Archicad.
 
         """
 
@@ -772,6 +1155,52 @@ class Commands:
             raise UnsucceededCommandCall(result)
         attributesListBuilder = _ListBuilder(ProfileAttributeOrError)
         return attributesListBuilder(result["result"]["attributes"])
+
+    def GetPropertyDefinitionAvailability(self, propertyIds: List[PropertyIdArrayItem]) -> List[PropertyDefinitionAvailabilityOrError]:
+        """Returns the ids of classification items a given property definition is available for.
+
+        Args:
+            propertyIds (:obj:`list` of :obj:`PropertyIdArrayItem`): A list of property identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`PropertyDefinitionAvailabilityOrError`: A list of classification item avalabilities.
+
+        """
+        class GetPropertyDefinitionAvailability_parameters(_ACBaseType):
+            __slots__ = ("propertyIds", )
+            def __init__(self, propertyIds: List[PropertyIdArrayItem]):
+                self.propertyIds: List[PropertyIdArrayItem] = propertyIds
+
+        GetPropertyDefinitionAvailability_parameters.get_classinfo().add_field('propertyIds', List[PropertyIdArrayItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetPropertyDefinitionAvailability", "parameters": GetPropertyDefinitionAvailability_parameters(propertyIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        propertyDefinitionAvailabilityListListBuilder = _ListBuilder(PropertyDefinitionAvailabilityOrError)
+        return propertyDefinitionAvailabilityListListBuilder(result["result"]["propertyDefinitionAvailabilityList"])
+
+    def GetPropertyGroups(self, propertyGroupIds: List[PropertyGroupIdArrayItem]) -> List[PropertyGroupOrError]:
+        """Returns the details of property groups.
+
+        Args:
+            propertyGroupIds (:obj:`list` of :obj:`PropertyGroupIdArrayItem`): A list of property group identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`PropertyGroupOrError`: A list of property groups or errors.
+
+        """
+        class GetPropertyGroups_parameters(_ACBaseType):
+            __slots__ = ("propertyGroupIds", )
+            def __init__(self, propertyGroupIds: List[PropertyGroupIdArrayItem]):
+                self.propertyGroupIds: List[PropertyGroupIdArrayItem] = propertyGroupIds
+
+        GetPropertyGroups_parameters.get_classinfo().add_field('propertyGroupIds', List[PropertyGroupIdArrayItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetPropertyGroups", "parameters": GetPropertyGroups_parameters(propertyGroupIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        propertyGroupsListBuilder = _ListBuilder(PropertyGroupOrError)
+        return propertyGroupsListBuilder(result["result"]["propertyGroups"])
 
     def GetPropertyIds(self, properties: List[PropertyUserId]) -> List[PropertyIdOrError]:
         """Returns the identifiers of property definitions for the requested property names.
@@ -862,6 +1291,75 @@ class Commands:
         publisherSetNamesListBuilder = _ListBuilder(str)
         return publisherSetNamesListBuilder(result["result"]["publisherSetNames"])
 
+    def GetSectionNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[SectionNavigatorItemOrError]:
+        """Returns the details of the section navigator items identified by their Ids.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`SectionNavigatorItemOrError`: A list of section navigator items.
+
+        """
+        class GetSectionNavigatorItems_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetSectionNavigatorItems_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetSectionNavigatorItems", "parameters": GetSectionNavigatorItems_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemsListBuilder = _ListBuilder(SectionNavigatorItemOrError)
+        return navigatorItemsListBuilder(result["result"]["navigatorItems"])
+
+    def GetSelectedElements(self, onlyEditable: Optional[bool] = None) -> List[ElementIdArrayItem]:
+        """Returns the identifiers of selected elements in the current plan.
+
+        Args:
+            onlyEditable (:obj:`bool`, optional): Optional parameter that defines whether the selection list should include only the editable elements or all of them. The default value is FALSE
+
+        Returns:
+            :obj:`list` of :obj:`ElementIdArrayItem`: A list of elements.
+
+        """
+        class GetSelectedElements_parameters(_ACBaseType):
+            __slots__ = ("onlyEditable", )
+            def __init__(self, onlyEditable: Optional[bool] = None):
+                self.onlyEditable: Optional[bool] = onlyEditable
+
+        GetSelectedElements_parameters.get_classinfo().add_field('onlyEditable', Optional[bool])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetSelectedElements", "parameters": GetSelectedElements_parameters(onlyEditable).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        elementsListBuilder = _ListBuilder(ElementIdArrayItem)
+        return elementsListBuilder(result["result"]["elements"])
+
+    def GetStoryNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[StoryNavigatorItemOrError]:
+        """Returns the details of the story navigator items identified by their Ids.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`StoryNavigatorItemOrError`: A list of story navigator items.
+
+        """
+        class GetStoryNavigatorItems_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetStoryNavigatorItems_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetStoryNavigatorItems", "parameters": GetStoryNavigatorItems_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemsListBuilder = _ListBuilder(StoryNavigatorItemOrError)
+        return navigatorItemsListBuilder(result["result"]["navigatorItems"])
+
     def GetSurfaceAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[SurfaceAttributeOrError]:
         """Returns the detailed surface attributes identified by their GUIDs.
 
@@ -884,6 +1382,52 @@ class Commands:
             raise UnsucceededCommandCall(result)
         attributesListBuilder = _ListBuilder(SurfaceAttributeOrError)
         return attributesListBuilder(result["result"]["attributes"])
+
+    def GetTypesOfElements(self, elements: List[ElementIdArrayItem]) -> List[TypeOfElementOrError]:
+        """Returns the types of the given elements.
+
+        Args:
+            elements (:obj:`list` of :obj:`ElementIdArrayItem`): A list of elements.
+
+        Returns:
+            :obj:`list` of :obj:`TypeOfElementOrError`: A list of element types or errors.
+
+        """
+        class GetTypesOfElements_parameters(_ACBaseType):
+            __slots__ = ("elements", )
+            def __init__(self, elements: List[ElementIdArrayItem]):
+                self.elements: List[ElementIdArrayItem] = elements
+
+        GetTypesOfElements_parameters.get_classinfo().add_field('elements', List[ElementIdArrayItem])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetTypesOfElements", "parameters": GetTypesOfElements_parameters(elements).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        typesOfElementsListBuilder = _ListBuilder(TypeOfElementOrError)
+        return typesOfElementsListBuilder(result["result"]["typesOfElements"])
+
+    def GetWorksheetNavigatorItems(self, navigatorItemIds: List[NavigatorItemIdWrapper]) -> List[WorksheetNavigatorItemOrError]:
+        """Returns the details of the worksheet navigator items identified by their Ids.
+
+        Args:
+            navigatorItemIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+        Returns:
+            :obj:`list` of :obj:`WorksheetNavigatorItemOrError`: A list of worksheet navigator items.
+
+        """
+        class GetWorksheetNavigatorItems_parameters(_ACBaseType):
+            __slots__ = ("navigatorItemIds", )
+            def __init__(self, navigatorItemIds: List[NavigatorItemIdWrapper]):
+                self.navigatorItemIds: List[NavigatorItemIdWrapper] = navigatorItemIds
+
+        GetWorksheetNavigatorItems_parameters.get_classinfo().add_field('navigatorItemIds', List[NavigatorItemIdWrapper])
+
+        result = post_command(self.__req, json.dumps({"command": "API.GetWorksheetNavigatorItems", "parameters": GetWorksheetNavigatorItems_parameters(navigatorItemIds).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+        navigatorItemsListBuilder = _ListBuilder(WorksheetNavigatorItemOrError)
+        return navigatorItemsListBuilder(result["result"]["navigatorItems"])
 
     def GetZoneCategoryAttributes(self, attributeIds: List[AttributeIdWrapperItem]) -> List[ZoneCategoryAttributeOrError]:
         """Returns the detailed zone category attributes identified by their GUIDs.
@@ -931,7 +1475,7 @@ class Commands:
         return result["result"]["available"]
 
     def IsAlive(self) -> bool:
-        """Checks if the ARCHICAD connection is alive.
+        """Checks if the Archicad connection is alive.
 
         Returns:
             :obj:`bool`: Returns true if the connection is alive.
@@ -942,6 +1486,31 @@ class Commands:
         if not result["succeeded"]:
             raise UnsucceededCommandCall(result)
         return result["result"]["isAlive"]
+
+    def MoveAttributesAndFolders(self, folders: List[AttributeFolder], attributeIds: List[AttributeIdWrapperItem], targetFolder: AttributeFolder):
+        """Moves attributes and attribute folders.
+
+        Args:
+            folders (:obj:`list` of :obj:`AttributeFolder`): A list of attribute folders.
+            attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+            targetFolder (:obj:`AttributeFolder`): Identifies an attribute folder. The path of the root folder is repesented by empty array.
+
+        """
+        class MoveAttributesAndFolders_parameters(_ACBaseType):
+            __slots__ = ("folders", "attributeIds", "targetFolder", )
+            def __init__(self, folders: List[AttributeFolder], attributeIds: List[AttributeIdWrapperItem], targetFolder: AttributeFolder):
+                self.folders: List[AttributeFolder] = folders
+                self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+                self.targetFolder: AttributeFolder = targetFolder
+
+        MoveAttributesAndFolders_parameters.get_classinfo().add_field('folders', List[AttributeFolder])
+        MoveAttributesAndFolders_parameters.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
+        MoveAttributesAndFolders_parameters.get_classinfo().add_field('targetFolder', AttributeFolder)
+
+        result = post_command(self.__req, json.dumps({"command": "API.MoveAttributesAndFolders", "parameters": MoveAttributesAndFolders_parameters(folders, attributeIds, targetFolder).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+
 
     def MoveNavigatorItem(self, navigatorItemIdToMove: NavigatorItemId, parentNavigatorItemId: NavigatorItemId, previousNavigatorItemId: Optional[NavigatorItemId] = None):
         """Moves the given navigator item under the <i>parentNavigatorItemId</i> in the navigator tree. If <i>previousNavigatorItemId</i> is not given then inserts it at the first place under the new parent. If it is given then inserts it after this navigator item.
@@ -964,6 +1533,28 @@ class Commands:
         MoveNavigatorItem_parameters.get_classinfo().add_field('previousNavigatorItemId', Optional[NavigatorItemId])
 
         result = post_command(self.__req, json.dumps({"command": "API.MoveNavigatorItem", "parameters": MoveNavigatorItem_parameters(navigatorItemIdToMove, parentNavigatorItemId, previousNavigatorItemId).to_dict()}))
+        if not result["succeeded"]:
+            raise UnsucceededCommandCall(result)
+
+
+    def RenameAttributeFolder(self, attributeFolder: AttributeFolder, newName: str):
+        """Rename attribute folder.
+
+        Args:
+            attributeFolder (:obj:`AttributeFolder`): Identifies an attribute folder. The path of the root folder is repesented by empty array.
+            newName (:obj:`str`): The requested new name of the attribute folder.
+
+        """
+        class RenameAttributeFolder_parameters(_ACBaseType):
+            __slots__ = ("attributeFolder", "newName", )
+            def __init__(self, attributeFolder: AttributeFolder, newName: str):
+                self.attributeFolder: AttributeFolder = attributeFolder
+                self.newName: str = newName
+
+        RenameAttributeFolder_parameters.get_classinfo().add_field('attributeFolder', AttributeFolder)
+        RenameAttributeFolder_parameters.get_classinfo().add_field('newName', str, min_length(1))
+
+        result = post_command(self.__req, json.dumps({"command": "API.RenameAttributeFolder", "parameters": RenameAttributeFolder_parameters(attributeFolder, newName).to_dict()}))
         if not result["succeeded"]:
             raise UnsucceededCommandCall(result)
 

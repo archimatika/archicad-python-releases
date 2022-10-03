@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="archicad",
-    version="25.3000",
-    author="GRAPHISOFT SE",
+    version="26.3000",
+    author="Graphisoft SE",
     author_email="archicadapi@graphisoft.com",
-    description="Python binding for the ARCHICAD JSON command interface",
+    description="Python binding for the Archicad JSON command interface",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://archicadapi.graphisoft.com/archicadPythonPackage",

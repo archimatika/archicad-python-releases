@@ -9,7 +9,7 @@ from converter import SchemaConverter, Class, Command, ClassType, Attribute
 
 class TestConverterForClasses(unittest.TestCase):
     def test_class_with_primitives(self):
-        REQUIRED_FILES = ['APITypes.json']
+        REQUIRED_FILES = ['APITypes.json', 'APINavigatorTypes.json']
         parser = SchemaParser()
         script_path = os.path.dirname(os.path.realpath(__file__))
         schema_folder = os.path.join(script_path, 'RFIX')
@@ -1047,7 +1047,7 @@ class TestConverterForCommands(unittest.TestCase):
 
         COMMAND: Command = converter.commands[0]
         self.assertEqual(COMMAND.name, 'GetProductInfo')
-        self.assertEqual(COMMAND.description, 'Accesses the version information from the running ARCHICAD.')
+        self.assertEqual(COMMAND.description, 'Accesses the version information from the running Archicad.')
         self.assertIsNone(COMMAND.title)
         self.assertIsNone(COMMAND.default)
 
@@ -1070,24 +1070,24 @@ class TestConverterForCommands(unittest.TestCase):
 
         FIRST_RESPONSE_PARAMETER: Attribute = RESPONSE_PARAMETERS.attributes[0]
         self.assertEqual(FIRST_RESPONSE_PARAMETER.name, 'version')
-        self.assertEqual(FIRST_RESPONSE_PARAMETER.description, 'The version of the running ARCHICAD.')
+        self.assertEqual(FIRST_RESPONSE_PARAMETER.description, 'The version of the running Archicad.')
         self.assertEqual(FIRST_RESPONSE_PARAMETER.type, 'int')
         self.assertEqual(FIRST_RESPONSE_PARAMETER.required, True)
 
         SECOND_RESPONSE_PARAMETER: Attribute = RESPONSE_PARAMETERS.attributes[1]
         self.assertEqual(SECOND_RESPONSE_PARAMETER.name, 'buildNumber')
-        self.assertEqual(SECOND_RESPONSE_PARAMETER.description, 'The build number of the running ARCHICAD.')
+        self.assertEqual(SECOND_RESPONSE_PARAMETER.description, 'The build number of the running Archicad.')
         self.assertEqual(SECOND_RESPONSE_PARAMETER.type, 'int')
         self.assertEqual(SECOND_RESPONSE_PARAMETER.required, True)
 
         SECOND_RESPONSE_PARAMETER: Attribute = RESPONSE_PARAMETERS.attributes[2]
         self.assertEqual(SECOND_RESPONSE_PARAMETER.name, 'languageCode')
-        self.assertEqual(SECOND_RESPONSE_PARAMETER.description, 'The language code of the running ARCHICAD.')
+        self.assertEqual(SECOND_RESPONSE_PARAMETER.description, 'The language code of the running Archicad.')
         self.assertEqual(SECOND_RESPONSE_PARAMETER.type, 'str')
         self.assertEqual(SECOND_RESPONSE_PARAMETER.required, True)
 
     def test_setter_command(self):
-        REQUIRED_FILES = ['API.SetLayoutSettings.json', 'APITypes.json']
+        REQUIRED_FILES = ['APITypes.json', 'APINavigatorTypes.json', 'API.SetLayoutSettings.json']
         parser = SchemaParser()
         script_path = os.path.dirname(os.path.realpath(__file__))
         schema_folder = os.path.join(script_path, 'RFIX')
@@ -1280,7 +1280,7 @@ class TestConverterForCommands(unittest.TestCase):
         self.assertEqual(RESPONSE_PARAMETER_ITEMTYPE_WRAPPED_CLASS.attributes[0].pattern, '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
         
     def test_one_of_command(self):
-        REQUIRED_FILES = ['API.RenameNavigatorItem.json', 'APITypes.json']
+        REQUIRED_FILES = ['APITypes.json', 'APINavigatorTypes.json', 'API.RenameNavigatorItem.json']
         parser = SchemaParser()
         script_path = os.path.dirname(os.path.realpath(__file__))
         schema_folder = os.path.join(script_path, 'RFIX')

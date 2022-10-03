@@ -1,7 +1,7 @@
 import os, sys, subprocess
 from typing import Optional, Union, Tuple, List, Callable, Any
-from archicad.releases.ac25.b3000types import *
-from archicad.releases.ac25.b3000commands import *
+from archicad.releases.ac26.b3000types import *
+from archicad.releases.ac26.b3000commands import *
 
 
 def _find_in_tree(treeRootItem, itemattr, childrenattr, criterion) -> list:
@@ -64,7 +64,7 @@ class Utilities:
                             self.accommands.GetAllClassificationSystems() if system.name == systemName)
 
 
-    def FindClassificationItemInSystem(self, system_name: str, item_id: str) -> Optional[ClassificationItemId]:
+    def FindClassificationItemInSystem(self, system_name: str, item_id: str) -> Optional[ClassificationItemInTree]:
         """Finds the classification item in a system."""
         classifications_tree = self.accommands.GetAllClassificationsInSystem(self.FindClassificationSystem(system_name))
         for tree in classifications_tree:

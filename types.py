@@ -1,4 +1,4 @@
-"""GRAPHISOFT
+"""Graphisoft
 """
 from uuid import UUID
 from typing import Union, Optional, List
@@ -71,6 +71,21 @@ class AttributeId(_ACBaseType):
 AttributeId.get_classinfo().add_field('guid', UUID)
 
 
+class AttributeFolderId(_ACBaseType):
+    """ The identifier of an attribute folder.
+
+    Attributes:
+        guid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
+
+    """
+    __slots__ = ("guid", )
+
+    def __init__(self, guid: UUID):
+        self.guid: UUID = guid
+
+AttributeFolderId.get_classinfo().add_field('guid', UUID)
+
+
 class AttributeIdWrapperItem(_ACBaseType):
     """ EMPTY STRING
 
@@ -84,6 +99,45 @@ class AttributeIdWrapperItem(_ACBaseType):
         self.attributeId: AttributeId = attributeId
 
 AttributeIdWrapperItem.get_classinfo().add_field('attributeId', AttributeId)
+
+
+class AttributeFolder(_ACBaseType):
+    """ Identifies an attribute folder. The path of the root folder is repesented by empty array.
+
+    Attributes:
+        attributeType (:obj:`str`): The type of an attribute.
+        path (:obj:`list` of :obj:`str`, optional): A list of attribute folder names. May be empty.
+        attributeFolderId (:obj:`AttributeFolderId`, optional): The identifier of an attribute folder.
+
+    """
+    __slots__ = ("attributeType", "path", "attributeFolderId", )
+
+    def __init__(self, attributeType: str, path: Optional[List[str]] = None, attributeFolderId: Optional[AttributeFolderId] = None):
+        self.attributeType: str = attributeType
+        self.path: Optional[List[str]] = path
+        self.attributeFolderId: Optional[AttributeFolderId] = attributeFolderId
+
+AttributeFolder.get_classinfo().add_field('attributeType', str, value_set(['BuildingMaterial', 'Composite', 'Fill', 'Layer', 'LayerCombination', 'Line', 'PenTable', 'Profile', 'Surface', 'ZoneCategory']))
+AttributeFolder.get_classinfo().add_field('path', Optional[List[str]])
+AttributeFolder.get_classinfo().add_field('attributeFolderId', Optional[AttributeFolderId])
+
+
+class AttributeFolderContent(_ACBaseType):
+    """ An attribute folder content. Contains subfolders and attributes.
+
+    Attributes:
+        subfolders (:obj:`list` of :obj:`AttributeFolder`): A list of attribute folders.
+        attributeIds (:obj:`list` of :obj:`AttributeIdWrapperItem`): A list of attribute identifiers.
+
+    """
+    __slots__ = ("subfolders", "attributeIds", )
+
+    def __init__(self, subfolders: List[AttributeFolder], attributeIds: List[AttributeIdWrapperItem]):
+        self.subfolders: List[AttributeFolder] = subfolders
+        self.attributeIds: List[AttributeIdWrapperItem] = attributeIds
+
+AttributeFolderContent.get_classinfo().add_field('subfolders', List[AttributeFolder])
+AttributeFolderContent.get_classinfo().add_field('attributeIds', List[AttributeIdWrapperItem])
 
 
 class AttributeHeader(_ACBaseType):
@@ -375,18 +429,21 @@ class ClassificationItemDetails(_ACBaseType):
     """ The details of a classification item.
 
     Attributes:
+        classificationItemId (:obj:`ClassificationItemId`): The identifier of a classification item.
         id (:obj:`str`): The unique identifier of the classification item as specified by the user.
         name (:obj:`str`): The display name of the classification item.
         description (:obj:`str`): The description of the classification item.
 
     """
-    __slots__ = ("id", "name", "description", )
+    __slots__ = ("classificationItemId", "id", "name", "description", )
 
-    def __init__(self, id: str, name: str, description: str):
+    def __init__(self, classificationItemId: ClassificationItemId, id: str, name: str, description: str):
+        self.classificationItemId: ClassificationItemId = classificationItemId
         self.id: str = id
         self.name: str = name
         self.description: str = description
 
+ClassificationItemDetails.get_classinfo().add_field('classificationItemId', ClassificationItemId)
 ClassificationItemDetails.get_classinfo().add_field('id', str)
 ClassificationItemDetails.get_classinfo().add_field('name', str)
 ClassificationItemDetails.get_classinfo().add_field('description', str)
@@ -423,7 +480,7 @@ ClassificationSystem.get_classinfo().add_field('date', str, matches(r"^[0-9]{4}-
 
 
 class Point2D(_ACBaseType):
-    """ EMPTY STRING
+    """ Coordinates of a 2D point
 
     Attributes:
         x (:obj:`float`): X coordinate of 2D point
@@ -438,6 +495,266 @@ class Point2D(_ACBaseType):
 
 Point2D.get_classinfo().add_field('x', float)
 Point2D.get_classinfo().add_field('y', float)
+
+
+class NavigatorItemId(_ACBaseType):
+    """ The identifier of a navigator item.
+
+    Attributes:
+        guid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
+
+    """
+    __slots__ = ("guid", )
+
+    def __init__(self, guid: UUID):
+        self.guid: UUID = guid
+
+NavigatorItemId.get_classinfo().add_field('guid', UUID)
+
+
+class PublisherSetId(_ACBaseType):
+    """ The identifier of a publisher set.
+
+    Attributes:
+        name (:obj:`str`): The name of the publisher set.
+        type (:obj:`str`): The type of the navigator item tree.
+
+    """
+    __slots__ = ("name", "type", )
+
+    def __init__(self, name: str, type: str = "PublisherSets"):
+        self.name: str = name
+        self.type: str = type
+
+PublisherSetId.get_classinfo().add_field('name', str)
+PublisherSetId.get_classinfo().add_field('type', str, value_set(['PublisherSets']))
+
+
+class OtherNavigatorTreeId(_ACBaseType):
+    """ The identifier of a navigator item tree.
+
+    Attributes:
+        type (:obj:`str`): The type of the navigator item tree.
+
+    """
+    __slots__ = ("type", )
+
+    def __init__(self, type: str):
+        self.type: str = type
+
+OtherNavigatorTreeId.get_classinfo().add_field('type', str, value_set(['ProjectMap', 'ViewMap', 'MyViewMap', 'LayoutBook']))
+
+
+class NavigatorTreeId(_ACUnionType):
+    """ The identifier of a navigator item tree.
+
+    Attributes:
+        type (:obj:`str`): The type of the navigator item tree.
+        name (:obj:`str`, optional): The name of the publisher set.
+
+    """
+    __slots__ = ("type", "name", )
+
+    constructor  = _ConstructUnion(Union[PublisherSetId, OtherNavigatorTreeId])
+
+    def __new__(cls, type: str, name: Optional[str] = None):
+        return cls.constructor(type=type, name=name)
+
+    def __init__(self, type: str, name: Optional[str] = None):
+        self.type: str = type
+        self.name: Optional[str] = name
+
+
+class GeneralNavigatorItemData(_ACBaseType):
+    """ The common data of a navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+
+GeneralNavigatorItemData.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+GeneralNavigatorItemData.get_classinfo().add_field('prefix', str)
+GeneralNavigatorItemData.get_classinfo().add_field('name', str)
+
+
+class NavigatorItemIdAndType(_ACBaseType):
+    """ Consists of a navigator item type and an identifier.
+
+    Attributes:
+        navigatorItemType (:obj:`str`): The type of a navigator item. The 'UndefinedItem' type is used when the actual type of the navigator item cannot be retrieved from Archicad.
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+
+    """
+    __slots__ = ("navigatorItemType", "navigatorItemId", )
+
+    def __init__(self, navigatorItemType: str, navigatorItemId: NavigatorItemId):
+        self.navigatorItemType: str = navigatorItemType
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+
+NavigatorItemIdAndType.get_classinfo().add_field('navigatorItemType', str, value_set(['UndefinedItem', 'ProjectMapRootItem', 'StoryItem', 'SectionItem', 'ElevationItem', 'InteriorElevationItem', 'WorksheetItem', 'DetailItem', 'DocumentFrom3DItem', 'Perspective3DItem', 'Axonometry3DItem', 'CameraSetItem', 'CameraItem', 'ScheduleItem', 'ProjectIndexItem', 'TextListItem', 'GraphicListItem', 'InfoItem', 'HelpItem', 'FolderItem', 'LayoutBookRootItem', 'SubsetItem', 'LayoutItem', 'DrawingItem', 'MasterFolderItem', 'MasterLayoutItem']))
+NavigatorItemIdAndType.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+
+
+class DetailNavigatorItem(_ACBaseType):
+    """ The details of a detail navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+
+DetailNavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+DetailNavigatorItem.get_classinfo().add_field('prefix', str)
+DetailNavigatorItem.get_classinfo().add_field('name', str)
+
+
+class Document3DNavigatorItem(_ACBaseType):
+    """ The details of a 3D document navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+
+Document3DNavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+Document3DNavigatorItem.get_classinfo().add_field('prefix', str)
+Document3DNavigatorItem.get_classinfo().add_field('name', str)
+
+
+class ElevationNavigatorItem(_ACBaseType):
+    """ The details of an elevation navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+
+ElevationNavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+ElevationNavigatorItem.get_classinfo().add_field('prefix', str)
+ElevationNavigatorItem.get_classinfo().add_field('name', str)
+
+
+class InteriorElevationNavigatorItem(_ACBaseType):
+    """ The details of an interior elevation navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+
+InteriorElevationNavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+InteriorElevationNavigatorItem.get_classinfo().add_field('prefix', str)
+InteriorElevationNavigatorItem.get_classinfo().add_field('name', str)
+
+
+class SectionNavigatorItem(_ACBaseType):
+    """ The details of a section navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+
+SectionNavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+SectionNavigatorItem.get_classinfo().add_field('prefix', str)
+SectionNavigatorItem.get_classinfo().add_field('name', str)
+
+
+class StoryNavigatorItem(_ACBaseType):
+    """ The details of a story navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+        floorLevel (:obj:`float`): The floor level of the story navigator item.
+        floorNumber (:obj:`float`): The floor number of the story navigator item.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", "floorLevel", "floorNumber", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str, floorLevel: float, floorNumber: float):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+        self.floorLevel: float = floorLevel
+        self.floorNumber: float = floorNumber
+
+StoryNavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+StoryNavigatorItem.get_classinfo().add_field('prefix', str)
+StoryNavigatorItem.get_classinfo().add_field('name', str)
+StoryNavigatorItem.get_classinfo().add_field('floorLevel', float)
+StoryNavigatorItem.get_classinfo().add_field('floorNumber', float)
+
+
+class WorksheetNavigatorItem(_ACBaseType):
+    """ The details of a worksheet navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+
+WorksheetNavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+WorksheetNavigatorItem.get_classinfo().add_field('prefix', str)
+WorksheetNavigatorItem.get_classinfo().add_field('name', str)
 
 
 class UserDefinedPropertyUserId(_ACBaseType):
@@ -528,18 +845,51 @@ class PropertyIdArrayItem(_ACBaseType):
 PropertyIdArrayItem.get_classinfo().add_field('propertyId', PropertyId)
 
 
+class PropertyGroupId(_ACBaseType):
+    """ The identifier of a property group.
+
+    Attributes:
+        guid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
+
+    """
+    __slots__ = ("guid", )
+
+    def __init__(self, guid: UUID):
+        self.guid: UUID = guid
+
+PropertyGroupId.get_classinfo().add_field('guid', UUID)
+
+
+class PropertyGroupIdArrayItem(_ACBaseType):
+    """ EMPTY STRING
+
+    Attributes:
+        propertyGroupId (:obj:`PropertyGroupId`): The identifier of a property group.
+
+    """
+    __slots__ = ("propertyGroupId", )
+
+    def __init__(self, propertyGroupId: PropertyGroupId):
+        self.propertyGroupId: PropertyGroupId = propertyGroupId
+
+PropertyGroupIdArrayItem.get_classinfo().add_field('propertyGroupId', PropertyGroupId)
+
+
 class PropertyGroup(_ACBaseType):
     """ A property group.
 
     Attributes:
+        propertyGroupId (:obj:`PropertyGroupId`): The identifier of a property group.
         name (:obj:`str`): The property group name.
 
     """
-    __slots__ = ("name", )
+    __slots__ = ("propertyGroupId", "name", )
 
-    def __init__(self, name: str):
+    def __init__(self, propertyGroupId: PropertyGroupId, name: str):
+        self.propertyGroupId: PropertyGroupId = propertyGroupId
         self.name: str = name
 
+PropertyGroup.get_classinfo().add_field('propertyGroupId', PropertyGroupId)
 PropertyGroup.get_classinfo().add_field('name', str)
 
 
@@ -1061,7 +1411,7 @@ ErrorItem.get_classinfo().add_field('error', Error)
 
 
 class SuccessfulExecutionResult(_ACBaseType):
-    """ EMPTY STRING
+    """ The result of a successful execution.
 
     Attributes:
         success (:obj:`bool`): EMPTY STRING
@@ -1076,7 +1426,7 @@ SuccessfulExecutionResult.get_classinfo().add_field('success', bool)
 
 
 class FailedExecutionResult(_ACBaseType):
-    """ EMPTY STRING
+    """ The result of a failed execution.
 
     Attributes:
         success (:obj:`bool`): EMPTY STRING
@@ -1143,6 +1493,24 @@ class ElementIdArrayItem(_ACBaseType):
 ElementIdArrayItem.get_classinfo().add_field('elementId', ElementId)
 
 
+class TypeOfElement(_ACBaseType):
+    """ An element id and its corresponding element type.
+
+    Attributes:
+        elementId (:obj:`ElementId`): The identifier of an element.
+        elementType (:obj:`str`): The type of an element.
+
+    """
+    __slots__ = ("elementId", "elementType", )
+
+    def __init__(self, elementId: ElementId, elementType: str):
+        self.elementId: ElementId = elementId
+        self.elementType: str = elementType
+
+TypeOfElement.get_classinfo().add_field('elementId', ElementId)
+TypeOfElement.get_classinfo().add_field('elementType', str, value_set(['Wall', 'Column', 'Beam', 'Window', 'Door', 'Object', 'Lamp', 'Slab', 'Roof', 'Mesh', 'Zone', 'CurtainWall', 'Shell', 'Skylight', 'Morph', 'Stair', 'Railing', 'Opening']))
+
+
 class ElementsWrapper(_ACBaseType):
     """ A wrapper for a list of elements.
 
@@ -1193,54 +1561,6 @@ class Image(_ACBaseType):
 Image.get_classinfo().add_field('content', str)
 
 
-class NavigatorItemId(_ACBaseType):
-    """ The identifier of a navigator item.
-
-    Attributes:
-        guid (:obj:`UUID`): A Globally Unique Identifier (or Universally Unique Identifier) in its string representation as defined in RFC 4122.
-
-    """
-    __slots__ = ("guid", )
-
-    def __init__(self, guid: UUID):
-        self.guid: UUID = guid
-
-NavigatorItemId.get_classinfo().add_field('guid', UUID)
-
-
-class PublisherSetId(_ACBaseType):
-    """ The identifier of a publisher set.
-
-    Attributes:
-        name (:obj:`str`): The name of the publisher set.
-        type (:obj:`str`): The type of the navigator item tree.
-
-    """
-    __slots__ = ("name", "type", )
-
-    def __init__(self, name: str, type: str = "PublisherSets"):
-        self.name: str = name
-        self.type: str = type
-
-PublisherSetId.get_classinfo().add_field('name', str)
-PublisherSetId.get_classinfo().add_field('type', str, value_set(['PublisherSets']))
-
-
-class OtherNavigatorTreeId(_ACBaseType):
-    """ The identifier of a navigator item tree.
-
-    Attributes:
-        type (:obj:`str`): The type of the navigator item tree.
-
-    """
-    __slots__ = ("type", )
-
-    def __init__(self, type: str):
-        self.type: str = type
-
-OtherNavigatorTreeId.get_classinfo().add_field('type', str, value_set(['ProjectMap', 'ViewMap', 'MyViewMap', 'LayoutBook']))
-
-
 class FolderParameters(_ACBaseType):
     """ The parameters of a folder.
 
@@ -1254,26 +1574,6 @@ class FolderParameters(_ACBaseType):
         self.name: str = name
 
 FolderParameters.get_classinfo().add_field('name', str)
-
-
-class NavigatorTreeId(_ACUnionType):
-    """ The identifier of a navigator item tree.
-
-    Attributes:
-        type (:obj:`str`): The type of the navigator item tree.
-        name (:obj:`str`, optional): The name of the publisher set.
-
-    """
-    __slots__ = ("type", "name", )
-
-    constructor  = _ConstructUnion(Union[PublisherSetId, OtherNavigatorTreeId])
-
-    def __new__(cls, type: str, name: Optional[str] = None):
-        return cls.constructor(type=type, name=name)
-
-    def __init__(self, type: str, name: Optional[str] = None):
-        self.type: str = type
-        self.name: Optional[str] = name
 
 
 class BoundingBox2D(_ACBaseType):
@@ -1644,34 +1944,19 @@ class ClassificationItemDetailsWrapper(_ACBaseType):
 ClassificationItemDetailsWrapper.get_classinfo().add_field('classificationItem', ClassificationItemDetails)
 
 
-class EnumValueIdWrapper(_ACBaseType):
+class ClassificationSystemWrapper(_ACBaseType):
     """ 
 
     Attributes:
-        enumValueId (:obj:`EnumValueId`): The identifier of a property enumeration value.
+        classificationSystem (:obj:`ClassificationSystem`): The details of a classification system.
 
     """
-    __slots__ = ("enumValueId", )
+    __slots__ = ("classificationSystem", )
 
-    def __init__(self, enumValueId: EnumValueId):
-        self.enumValueId: EnumValueId = enumValueId
+    def __init__(self, classificationSystem: ClassificationSystem):
+        self.classificationSystem: ClassificationSystem = classificationSystem
 
-EnumValueIdWrapper.get_classinfo().add_field('enumValueId', EnumValueId)
-
-
-class ImageWrapper(_ACBaseType):
-    """ 
-
-    Attributes:
-        image (:obj:`Image`): An image encoded as a Base64 string.
-
-    """
-    __slots__ = ("image", )
-
-    def __init__(self, image: Image):
-        self.image: Image = image
-
-ImageWrapper.get_classinfo().add_field('image', Image)
+ClassificationSystemWrapper.get_classinfo().add_field('classificationSystem', ClassificationSystem)
 
 
 class NavigatorItemIdWrapper(_ACBaseType):
@@ -1687,6 +1972,186 @@ class NavigatorItemIdWrapper(_ACBaseType):
         self.navigatorItemId: NavigatorItemId = navigatorItemId
 
 NavigatorItemIdWrapper.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+
+
+class NavigatorItemIdAndTypeWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        navigatorItemIdAndType (:obj:`NavigatorItemIdAndType`): Consists of a navigator item type and an identifier.
+
+    """
+    __slots__ = ("navigatorItemIdAndType", )
+
+    def __init__(self, navigatorItemIdAndType: NavigatorItemIdAndType):
+        self.navigatorItemIdAndType: NavigatorItemIdAndType = navigatorItemIdAndType
+
+NavigatorItemIdAndTypeWrapper.get_classinfo().add_field('navigatorItemIdAndType', NavigatorItemIdAndType)
+
+
+class DetailNavigatorItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        detailNavigatorItem (:obj:`DetailNavigatorItem`): The details of a detail navigator item.
+
+    """
+    __slots__ = ("detailNavigatorItem", )
+
+    def __init__(self, detailNavigatorItem: DetailNavigatorItem):
+        self.detailNavigatorItem: DetailNavigatorItem = detailNavigatorItem
+
+DetailNavigatorItemWrapper.get_classinfo().add_field('detailNavigatorItem', DetailNavigatorItem)
+
+
+class Document3DNavigatorItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        document3DNavigatorItem (:obj:`Document3DNavigatorItem`): The details of a 3D document navigator item.
+
+    """
+    __slots__ = ("document3DNavigatorItem", )
+
+    def __init__(self, document3DNavigatorItem: Document3DNavigatorItem):
+        self.document3DNavigatorItem: Document3DNavigatorItem = document3DNavigatorItem
+
+Document3DNavigatorItemWrapper.get_classinfo().add_field('document3DNavigatorItem', Document3DNavigatorItem)
+
+
+class ElevationNavigatorItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        elevationNavigatorItem (:obj:`ElevationNavigatorItem`): The details of an elevation navigator item.
+
+    """
+    __slots__ = ("elevationNavigatorItem", )
+
+    def __init__(self, elevationNavigatorItem: ElevationNavigatorItem):
+        self.elevationNavigatorItem: ElevationNavigatorItem = elevationNavigatorItem
+
+ElevationNavigatorItemWrapper.get_classinfo().add_field('elevationNavigatorItem', ElevationNavigatorItem)
+
+
+class InteriorElevationNavigatorItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        interiorElevationNavigatorItem (:obj:`InteriorElevationNavigatorItem`): The details of an interior elevation navigator item.
+
+    """
+    __slots__ = ("interiorElevationNavigatorItem", )
+
+    def __init__(self, interiorElevationNavigatorItem: InteriorElevationNavigatorItem):
+        self.interiorElevationNavigatorItem: InteriorElevationNavigatorItem = interiorElevationNavigatorItem
+
+InteriorElevationNavigatorItemWrapper.get_classinfo().add_field('interiorElevationNavigatorItem', InteriorElevationNavigatorItem)
+
+
+class SectionNavigatorItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        sectionNavigatorItem (:obj:`SectionNavigatorItem`): The details of a section navigator item.
+
+    """
+    __slots__ = ("sectionNavigatorItem", )
+
+    def __init__(self, sectionNavigatorItem: SectionNavigatorItem):
+        self.sectionNavigatorItem: SectionNavigatorItem = sectionNavigatorItem
+
+SectionNavigatorItemWrapper.get_classinfo().add_field('sectionNavigatorItem', SectionNavigatorItem)
+
+
+class StoryNavigatorItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        storyNavigatorItem (:obj:`StoryNavigatorItem`): The details of a story navigator item.
+
+    """
+    __slots__ = ("storyNavigatorItem", )
+
+    def __init__(self, storyNavigatorItem: StoryNavigatorItem):
+        self.storyNavigatorItem: StoryNavigatorItem = storyNavigatorItem
+
+StoryNavigatorItemWrapper.get_classinfo().add_field('storyNavigatorItem', StoryNavigatorItem)
+
+
+class WorksheetNavigatorItemWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        worksheetNavigatorItem (:obj:`WorksheetNavigatorItem`): The details of a worksheet navigator item.
+
+    """
+    __slots__ = ("worksheetNavigatorItem", )
+
+    def __init__(self, worksheetNavigatorItem: WorksheetNavigatorItem):
+        self.worksheetNavigatorItem: WorksheetNavigatorItem = worksheetNavigatorItem
+
+WorksheetNavigatorItemWrapper.get_classinfo().add_field('worksheetNavigatorItem', WorksheetNavigatorItem)
+
+
+class PropertyGroupWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        propertyGroup (:obj:`PropertyGroup`): A property group.
+
+    """
+    __slots__ = ("propertyGroup", )
+
+    def __init__(self, propertyGroup: PropertyGroup):
+        self.propertyGroup: PropertyGroup = propertyGroup
+
+PropertyGroupWrapper.get_classinfo().add_field('propertyGroup', PropertyGroup)
+
+
+class EnumValueIdWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        enumValueId (:obj:`EnumValueId`): The identifier of a property enumeration value.
+
+    """
+    __slots__ = ("enumValueId", )
+
+    def __init__(self, enumValueId: EnumValueId):
+        self.enumValueId: EnumValueId = enumValueId
+
+EnumValueIdWrapper.get_classinfo().add_field('enumValueId', EnumValueId)
+
+
+class TypeOfElementWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        typeOfElement (:obj:`TypeOfElement`): An element id and its corresponding element type.
+
+    """
+    __slots__ = ("typeOfElement", )
+
+    def __init__(self, typeOfElement: TypeOfElement):
+        self.typeOfElement: TypeOfElement = typeOfElement
+
+TypeOfElementWrapper.get_classinfo().add_field('typeOfElement', TypeOfElement)
+
+
+class ImageWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        image (:obj:`Image`): An image encoded as a Base64 string.
+
+    """
+    __slots__ = ("image", )
+
+    def __init__(self, image: Image):
+        self.image: Image = image
+
+ImageWrapper.get_classinfo().add_field('image', Image)
 
 
 class BoundingBox2DWrapper(_ACBaseType):
@@ -2010,8 +2475,8 @@ class LineItem(_ACBaseType):
         lineItemType (:obj:`str`): The type of a line item.
         centerOffset (:obj:`float`): The vertical distance from the origin of the symbol line. Used in separator, center dot, and centerline item types.
         length (:obj:`float`): The length of the item. Used in centerline, right angle, and parallel item types.
-        begPosition (:obj:`Point2D`): EMPTY STRING
-        endPosition (:obj:`Point2D`): EMPTY STRING
+        begPosition (:obj:`Point2D`): Coordinates of a 2D point
+        endPosition (:obj:`Point2D`): Coordinates of a 2D point
         radius (:obj:`float`): The radius of the item. Used in circle and arc item types.
         begAngle (:obj:`float`): The beginning angle of the item, measured from the vertical axis. Used in the arc item type.
         endAngle (:obj:`float`): The ending angle of the item, measured from the vertical axis. Used in the arc item type.
@@ -2125,8 +2590,44 @@ class LayerCombinationAttributeOrError(_ACUnionType):
         self.error: Optional[Error] = error
 
 
+class ClassificationItemAvailability(_ACBaseType):
+    """ Contains the ids of property definitions available for the given classification item.
+
+    Attributes:
+        classificationItemId (:obj:`ClassificationItemId`): The identifier of a classification item.
+        availableProperties (:obj:`list` of :obj:`PropertyIdArrayItem`): A list of property identifiers.
+
+    """
+    __slots__ = ("classificationItemId", "availableProperties", )
+
+    def __init__(self, classificationItemId: ClassificationItemId, availableProperties: List[PropertyIdArrayItem]):
+        self.classificationItemId: ClassificationItemId = classificationItemId
+        self.availableProperties: List[PropertyIdArrayItem] = availableProperties
+
+ClassificationItemAvailability.get_classinfo().add_field('classificationItemId', ClassificationItemId)
+ClassificationItemAvailability.get_classinfo().add_field('availableProperties', List[PropertyIdArrayItem])
+
+
+class PropertyDefinitionAvailability(_ACBaseType):
+    """ Contains the ids of classification items the given property definiton is available for.
+
+    Attributes:
+        propertyId (:obj:`PropertyId`): The identifier of a property.
+        availableClassifications (:obj:`list` of :obj:`ClassificationItemIdArrayItem`): A list of classification item identifiers.
+
+    """
+    __slots__ = ("propertyId", "availableClassifications", )
+
+    def __init__(self, propertyId: PropertyId, availableClassifications: List[ClassificationItemIdArrayItem]):
+        self.propertyId: PropertyId = propertyId
+        self.availableClassifications: List[ClassificationItemIdArrayItem] = availableClassifications
+
+PropertyDefinitionAvailability.get_classinfo().add_field('propertyId', PropertyId)
+PropertyDefinitionAvailability.get_classinfo().add_field('availableClassifications', List[ClassificationItemIdArrayItem])
+
+
 class ClassificationIdOrError(_ACUnionType):
-    """ EMPTY STRING
+    """ A classification identifier or an error.
 
     Attributes:
         classificationId (:obj:`ClassificationId`, optional): The element classification identifier.
@@ -2164,7 +2665,7 @@ ElementClassification.get_classinfo().add_field('classificationId', Classificati
 
 
 class ClassificationItemOrError(_ACUnionType):
-    """ EMPTY STRING
+    """ A classification item or an error.
 
     Attributes:
         classificationItem (:obj:`ClassificationItemDetails`, optional): The details of a classification item.
@@ -2181,6 +2682,210 @@ class ClassificationItemOrError(_ACUnionType):
     def __init__(self, classificationItem: Optional[ClassificationItemDetails] = None, error: Optional[Error] = None):
         self.classificationItem: Optional[ClassificationItemDetails] = classificationItem
         self.error: Optional[Error] = error
+
+
+class ClassificationSystemOrError(_ACUnionType):
+    """ Contains a classification system or error.
+
+    Attributes:
+        classificationSystem (:obj:`ClassificationSystem`, optional): The details of a classification system.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("classificationSystem", "error", )
+
+    constructor  = _ConstructUnion(Union[ClassificationSystemWrapper, ErrorItem])
+
+    def __new__(cls, classificationSystem: Optional[ClassificationSystem] = None, error: Optional[Error] = None):
+        return cls.constructor(classificationSystem=classificationSystem, error=error)
+
+    def __init__(self, classificationSystem: Optional[ClassificationSystem] = None, error: Optional[Error] = None):
+        self.classificationSystem: Optional[ClassificationSystem] = classificationSystem
+        self.error: Optional[Error] = error
+
+
+class NavigatorItemIdAndTypeOrError(_ACUnionType):
+    """ Contains a pair of navigator item type and identifier or an error.
+
+    Attributes:
+        navigatorItemIdAndType (:obj:`NavigatorItemIdAndType`, optional): Consists of a navigator item type and an identifier.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("navigatorItemIdAndType", "error", )
+
+    constructor  = _ConstructUnion(Union[NavigatorItemIdAndTypeWrapper, ErrorItem])
+
+    def __new__(cls, navigatorItemIdAndType: Optional[NavigatorItemIdAndType] = None, error: Optional[Error] = None):
+        return cls.constructor(navigatorItemIdAndType=navigatorItemIdAndType, error=error)
+
+    def __init__(self, navigatorItemIdAndType: Optional[NavigatorItemIdAndType] = None, error: Optional[Error] = None):
+        self.navigatorItemIdAndType: Optional[NavigatorItemIdAndType] = navigatorItemIdAndType
+        self.error: Optional[Error] = error
+
+
+class DetailNavigatorItemOrError(_ACUnionType):
+    """ Contains a detail navigator item or an error.
+
+    Attributes:
+        detailNavigatorItem (:obj:`DetailNavigatorItem`, optional): The details of a detail navigator item.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("detailNavigatorItem", "error", )
+
+    constructor  = _ConstructUnion(Union[DetailNavigatorItemWrapper, ErrorItem])
+
+    def __new__(cls, detailNavigatorItem: Optional[DetailNavigatorItem] = None, error: Optional[Error] = None):
+        return cls.constructor(detailNavigatorItem=detailNavigatorItem, error=error)
+
+    def __init__(self, detailNavigatorItem: Optional[DetailNavigatorItem] = None, error: Optional[Error] = None):
+        self.detailNavigatorItem: Optional[DetailNavigatorItem] = detailNavigatorItem
+        self.error: Optional[Error] = error
+
+
+class Document3DNavigatorItemOrError(_ACUnionType):
+    """ Contains a 3D document navigator item or an error.
+
+    Attributes:
+        document3DNavigatorItem (:obj:`Document3DNavigatorItem`, optional): The details of a 3D document navigator item.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("document3DNavigatorItem", "error", )
+
+    constructor  = _ConstructUnion(Union[Document3DNavigatorItemWrapper, ErrorItem])
+
+    def __new__(cls, document3DNavigatorItem: Optional[Document3DNavigatorItem] = None, error: Optional[Error] = None):
+        return cls.constructor(document3DNavigatorItem=document3DNavigatorItem, error=error)
+
+    def __init__(self, document3DNavigatorItem: Optional[Document3DNavigatorItem] = None, error: Optional[Error] = None):
+        self.document3DNavigatorItem: Optional[Document3DNavigatorItem] = document3DNavigatorItem
+        self.error: Optional[Error] = error
+
+
+class ElevationNavigatorItemOrError(_ACUnionType):
+    """ Contains an elevation navigator item or an error.
+
+    Attributes:
+        elevationNavigatorItem (:obj:`ElevationNavigatorItem`, optional): The details of an elevation navigator item.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("elevationNavigatorItem", "error", )
+
+    constructor  = _ConstructUnion(Union[ElevationNavigatorItemWrapper, ErrorItem])
+
+    def __new__(cls, elevationNavigatorItem: Optional[ElevationNavigatorItem] = None, error: Optional[Error] = None):
+        return cls.constructor(elevationNavigatorItem=elevationNavigatorItem, error=error)
+
+    def __init__(self, elevationNavigatorItem: Optional[ElevationNavigatorItem] = None, error: Optional[Error] = None):
+        self.elevationNavigatorItem: Optional[ElevationNavigatorItem] = elevationNavigatorItem
+        self.error: Optional[Error] = error
+
+
+class InteriorElevationNavigatorItemOrError(_ACUnionType):
+    """ Contains an interior elevation navigator item or an error.
+
+    Attributes:
+        interiorElevationNavigatorItem (:obj:`InteriorElevationNavigatorItem`, optional): The details of an interior elevation navigator item.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("interiorElevationNavigatorItem", "error", )
+
+    constructor  = _ConstructUnion(Union[InteriorElevationNavigatorItemWrapper, ErrorItem])
+
+    def __new__(cls, interiorElevationNavigatorItem: Optional[InteriorElevationNavigatorItem] = None, error: Optional[Error] = None):
+        return cls.constructor(interiorElevationNavigatorItem=interiorElevationNavigatorItem, error=error)
+
+    def __init__(self, interiorElevationNavigatorItem: Optional[InteriorElevationNavigatorItem] = None, error: Optional[Error] = None):
+        self.interiorElevationNavigatorItem: Optional[InteriorElevationNavigatorItem] = interiorElevationNavigatorItem
+        self.error: Optional[Error] = error
+
+
+class SectionNavigatorItemOrError(_ACUnionType):
+    """ Contains a section navigator item or an error.
+
+    Attributes:
+        sectionNavigatorItem (:obj:`SectionNavigatorItem`, optional): The details of a section navigator item.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("sectionNavigatorItem", "error", )
+
+    constructor  = _ConstructUnion(Union[SectionNavigatorItemWrapper, ErrorItem])
+
+    def __new__(cls, sectionNavigatorItem: Optional[SectionNavigatorItem] = None, error: Optional[Error] = None):
+        return cls.constructor(sectionNavigatorItem=sectionNavigatorItem, error=error)
+
+    def __init__(self, sectionNavigatorItem: Optional[SectionNavigatorItem] = None, error: Optional[Error] = None):
+        self.sectionNavigatorItem: Optional[SectionNavigatorItem] = sectionNavigatorItem
+        self.error: Optional[Error] = error
+
+
+class StoryNavigatorItemOrError(_ACUnionType):
+    """ Contains a story navigator item or an error.
+
+    Attributes:
+        storyNavigatorItem (:obj:`StoryNavigatorItem`, optional): The details of a story navigator item.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("storyNavigatorItem", "error", )
+
+    constructor  = _ConstructUnion(Union[StoryNavigatorItemWrapper, ErrorItem])
+
+    def __new__(cls, storyNavigatorItem: Optional[StoryNavigatorItem] = None, error: Optional[Error] = None):
+        return cls.constructor(storyNavigatorItem=storyNavigatorItem, error=error)
+
+    def __init__(self, storyNavigatorItem: Optional[StoryNavigatorItem] = None, error: Optional[Error] = None):
+        self.storyNavigatorItem: Optional[StoryNavigatorItem] = storyNavigatorItem
+        self.error: Optional[Error] = error
+
+
+class WorksheetNavigatorItemOrError(_ACUnionType):
+    """ Contains a worksheet navigator item or an error.
+
+    Attributes:
+        worksheetNavigatorItem (:obj:`WorksheetNavigatorItem`, optional): The details of a worksheet navigator item.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("worksheetNavigatorItem", "error", )
+
+    constructor  = _ConstructUnion(Union[WorksheetNavigatorItemWrapper, ErrorItem])
+
+    def __new__(cls, worksheetNavigatorItem: Optional[WorksheetNavigatorItem] = None, error: Optional[Error] = None):
+        return cls.constructor(worksheetNavigatorItem=worksheetNavigatorItem, error=error)
+
+    def __init__(self, worksheetNavigatorItem: Optional[WorksheetNavigatorItem] = None, error: Optional[Error] = None):
+        self.worksheetNavigatorItem: Optional[WorksheetNavigatorItem] = worksheetNavigatorItem
+        self.error: Optional[Error] = error
+
+
+class BuiltInContainerNavigatorItem(_ACBaseType):
+    """ The details of a built-in container navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+        contentIds (:obj:`list` of :obj:`NavigatorItemIdWrapper`): A list of navigator item identifiers.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", "contentIds", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str, contentIds: List[NavigatorItemIdWrapper]):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+        self.contentIds: List[NavigatorItemIdWrapper] = contentIds
+
+BuiltInContainerNavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+BuiltInContainerNavigatorItem.get_classinfo().add_field('prefix', str)
+BuiltInContainerNavigatorItem.get_classinfo().add_field('name', str)
+BuiltInContainerNavigatorItem.get_classinfo().add_field('contentIds', List[NavigatorItemIdWrapper])
 
 
 class PropertyIdOrError(_ACUnionType):
@@ -2203,28 +2908,24 @@ class PropertyIdOrError(_ACUnionType):
         self.error: Optional[Error] = error
 
 
-class PropertyDefinition(_ACBaseType):
-    """ A property definition.
+class PropertyGroupOrError(_ACUnionType):
+    """ A property group or an error.
 
     Attributes:
-        group (:obj:`PropertyGroup`): A property group.
-        name (:obj:`str`): The localized name of the property.
-        description (:obj:`str`): The description of the property.
-        possibleEnumValues (:obj:`list` of :obj:`PossibleEnumValuesArrayItem`, optional): A list of enumeration values.
+        propertyGroup (:obj:`PropertyGroup`, optional): A property group.
+        error (:obj:`Error`, optional): The details of an error.
 
     """
-    __slots__ = ("group", "name", "description", "possibleEnumValues", )
+    __slots__ = ("propertyGroup", "error", )
 
-    def __init__(self, group: PropertyGroup, name: str, description: str, possibleEnumValues: Optional[List[PossibleEnumValuesArrayItem]] = None):
-        self.group: PropertyGroup = group
-        self.name: str = name
-        self.description: str = description
-        self.possibleEnumValues: Optional[List[PossibleEnumValuesArrayItem]] = possibleEnumValues
+    constructor  = _ConstructUnion(Union[PropertyGroupWrapper, ErrorItem])
 
-PropertyDefinition.get_classinfo().add_field('group', PropertyGroup)
-PropertyDefinition.get_classinfo().add_field('name', str)
-PropertyDefinition.get_classinfo().add_field('description', str)
-PropertyDefinition.get_classinfo().add_field('possibleEnumValues', Optional[List[PossibleEnumValuesArrayItem]])
+    def __new__(cls, propertyGroup: Optional[PropertyGroup] = None, error: Optional[Error] = None):
+        return cls.constructor(propertyGroup=propertyGroup, error=error)
+
+    def __init__(self, propertyGroup: Optional[PropertyGroup] = None, error: Optional[Error] = None):
+        self.propertyGroup: Optional[PropertyGroup] = propertyGroup
+        self.error: Optional[Error] = error
 
 
 class NormalSingleEnumPropertyValue(_ACBaseType):
@@ -2267,6 +2968,44 @@ class NormalMultiEnumPropertyValue(_ACBaseType):
 NormalMultiEnumPropertyValue.get_classinfo().add_field('value', List[EnumValueIdWrapper])
 NormalMultiEnumPropertyValue.get_classinfo().add_field('type', str, value_set(['multiEnum']))
 NormalMultiEnumPropertyValue.get_classinfo().add_field('status', str, value_set(['normal']))
+
+
+class PropertyIdsOfElement(_ACBaseType):
+    """ A list property identifiers of an owner element.
+
+    Attributes:
+        elementId (:obj:`ElementId`): The identifier of an element.
+        propertyIds (:obj:`list` of :obj:`PropertyIdArrayItem`): A list of property identifiers.
+
+    """
+    __slots__ = ("elementId", "propertyIds", )
+
+    def __init__(self, elementId: ElementId, propertyIds: List[PropertyIdArrayItem]):
+        self.elementId: ElementId = elementId
+        self.propertyIds: List[PropertyIdArrayItem] = propertyIds
+
+PropertyIdsOfElement.get_classinfo().add_field('elementId', ElementId)
+PropertyIdsOfElement.get_classinfo().add_field('propertyIds', List[PropertyIdArrayItem])
+
+
+class TypeOfElementOrError(_ACUnionType):
+    """ The type of an element or an error.
+
+    Attributes:
+        typeOfElement (:obj:`TypeOfElement`, optional): An element id and its corresponding element type.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("typeOfElement", "error", )
+
+    constructor  = _ConstructUnion(Union[TypeOfElementWrapper, ErrorItem])
+
+    def __new__(cls, typeOfElement: Optional[TypeOfElement] = None, error: Optional[Error] = None):
+        return cls.constructor(typeOfElement=typeOfElement, error=error)
+
+    def __init__(self, typeOfElement: Optional[TypeOfElement] = None, error: Optional[Error] = None):
+        self.typeOfElement: Optional[TypeOfElement] = typeOfElement
+        self.error: Optional[Error] = error
 
 
 class ImageOrError(_ACUnionType):
@@ -2404,6 +3143,36 @@ class BuildingMaterialAttributeWrapper(_ACBaseType):
 BuildingMaterialAttributeWrapper.get_classinfo().add_field('buildingMaterialAttribute', BuildingMaterialAttribute)
 
 
+class ClassificationItemAvailabilityWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        classificationItemAvailability (:obj:`ClassificationItemAvailability`): Contains the ids of property definitions available for the given classification item.
+
+    """
+    __slots__ = ("classificationItemAvailability", )
+
+    def __init__(self, classificationItemAvailability: ClassificationItemAvailability):
+        self.classificationItemAvailability: ClassificationItemAvailability = classificationItemAvailability
+
+ClassificationItemAvailabilityWrapper.get_classinfo().add_field('classificationItemAvailability', ClassificationItemAvailability)
+
+
+class PropertyDefinitionAvailabilityWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        propertyDefinitionAvailability (:obj:`PropertyDefinitionAvailability`): Contains the ids of classification items the given property definiton is available for.
+
+    """
+    __slots__ = ("propertyDefinitionAvailability", )
+
+    def __init__(self, propertyDefinitionAvailability: PropertyDefinitionAvailability):
+        self.propertyDefinitionAvailability: PropertyDefinitionAvailability = propertyDefinitionAvailability
+
+PropertyDefinitionAvailabilityWrapper.get_classinfo().add_field('propertyDefinitionAvailability', PropertyDefinitionAvailability)
+
+
 class ClassificationIdsOrErrorsWrapper(_ACBaseType):
     """ 
 
@@ -2419,19 +3188,34 @@ class ClassificationIdsOrErrorsWrapper(_ACBaseType):
 ClassificationIdsOrErrorsWrapper.get_classinfo().add_field('classificationIds', List[ClassificationIdOrError])
 
 
-class PropertyDefinitionWrapper(_ACBaseType):
+class BuiltInContainerNavigatorItemWrapper(_ACBaseType):
     """ 
 
     Attributes:
-        propertyDefinition (:obj:`PropertyDefinition`): A property definition.
+        builtInContainerNavigatorItem (:obj:`BuiltInContainerNavigatorItem`): The details of a built-in container navigator item.
 
     """
-    __slots__ = ("propertyDefinition", )
+    __slots__ = ("builtInContainerNavigatorItem", )
 
-    def __init__(self, propertyDefinition: PropertyDefinition):
-        self.propertyDefinition: PropertyDefinition = propertyDefinition
+    def __init__(self, builtInContainerNavigatorItem: BuiltInContainerNavigatorItem):
+        self.builtInContainerNavigatorItem: BuiltInContainerNavigatorItem = builtInContainerNavigatorItem
 
-PropertyDefinitionWrapper.get_classinfo().add_field('propertyDefinition', PropertyDefinition)
+BuiltInContainerNavigatorItemWrapper.get_classinfo().add_field('builtInContainerNavigatorItem', BuiltInContainerNavigatorItem)
+
+
+class PropertyIdsOfElementWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        propertyIdsOfElement (:obj:`PropertyIdsOfElement`): A list property identifiers of an owner element.
+
+    """
+    __slots__ = ("propertyIdsOfElement", )
+
+    def __init__(self, propertyIdsOfElement: PropertyIdsOfElement):
+        self.propertyIdsOfElement: PropertyIdsOfElement = propertyIdsOfElement
+
+PropertyIdsOfElementWrapper.get_classinfo().add_field('propertyIdsOfElement', PropertyIdsOfElement)
 
 
 class PenTableAttribute(_ACBaseType):
@@ -2591,6 +3375,46 @@ class BuildingMaterialAttributeOrError(_ACUnionType):
         self.error: Optional[Error] = error
 
 
+class ClassificationItemAvailabilityOrError(_ACUnionType):
+    """ Contains the ids of property definitions available for the given classification item or error.
+
+    Attributes:
+        classificationItemAvailability (:obj:`ClassificationItemAvailability`, optional): Contains the ids of property definitions available for the given classification item.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("classificationItemAvailability", "error", )
+
+    constructor  = _ConstructUnion(Union[ClassificationItemAvailabilityWrapper, ErrorItem])
+
+    def __new__(cls, classificationItemAvailability: Optional[ClassificationItemAvailability] = None, error: Optional[Error] = None):
+        return cls.constructor(classificationItemAvailability=classificationItemAvailability, error=error)
+
+    def __init__(self, classificationItemAvailability: Optional[ClassificationItemAvailability] = None, error: Optional[Error] = None):
+        self.classificationItemAvailability: Optional[ClassificationItemAvailability] = classificationItemAvailability
+        self.error: Optional[Error] = error
+
+
+class PropertyDefinitionAvailabilityOrError(_ACUnionType):
+    """ Contains the ids of classification items the given property definiton is available for or error.
+
+    Attributes:
+        propertyDefinitionAvailability (:obj:`PropertyDefinitionAvailability`, optional): Contains the ids of classification items the given property definiton is available for.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("propertyDefinitionAvailability", "error", )
+
+    constructor  = _ConstructUnion(Union[PropertyDefinitionAvailabilityWrapper, ErrorItem])
+
+    def __new__(cls, propertyDefinitionAvailability: Optional[PropertyDefinitionAvailability] = None, error: Optional[Error] = None):
+        return cls.constructor(propertyDefinitionAvailability=propertyDefinitionAvailability, error=error)
+
+    def __init__(self, propertyDefinitionAvailability: Optional[PropertyDefinitionAvailability] = None, error: Optional[Error] = None):
+        self.propertyDefinitionAvailability: Optional[PropertyDefinitionAvailability] = propertyDefinitionAvailability
+        self.error: Optional[Error] = error
+
+
 class ElementClassificationOrError(_ACUnionType):
     """ Element classification identifiers or errors.
 
@@ -2611,23 +3435,43 @@ class ElementClassificationOrError(_ACUnionType):
         self.error: Optional[Error] = error
 
 
-class PropertyDefinitionOrError(_ACUnionType):
-    """ A property definition or an error.
+class BuiltInContainerNavigatorItemOrError(_ACUnionType):
+    """ Contains a built-in container navigator item or an error.
 
     Attributes:
-        propertyDefinition (:obj:`PropertyDefinition`, optional): A property definition.
+        builtInContainerNavigatorItem (:obj:`BuiltInContainerNavigatorItem`, optional): The details of a built-in container navigator item.
         error (:obj:`Error`, optional): The details of an error.
 
     """
-    __slots__ = ("propertyDefinition", "error", )
+    __slots__ = ("builtInContainerNavigatorItem", "error", )
 
-    constructor  = _ConstructUnion(Union[PropertyDefinitionWrapper, ErrorItem])
+    constructor  = _ConstructUnion(Union[BuiltInContainerNavigatorItemWrapper, ErrorItem])
 
-    def __new__(cls, propertyDefinition: Optional[PropertyDefinition] = None, error: Optional[Error] = None):
-        return cls.constructor(propertyDefinition=propertyDefinition, error=error)
+    def __new__(cls, builtInContainerNavigatorItem: Optional[BuiltInContainerNavigatorItem] = None, error: Optional[Error] = None):
+        return cls.constructor(builtInContainerNavigatorItem=builtInContainerNavigatorItem, error=error)
 
-    def __init__(self, propertyDefinition: Optional[PropertyDefinition] = None, error: Optional[Error] = None):
-        self.propertyDefinition: Optional[PropertyDefinition] = propertyDefinition
+    def __init__(self, builtInContainerNavigatorItem: Optional[BuiltInContainerNavigatorItem] = None, error: Optional[Error] = None):
+        self.builtInContainerNavigatorItem: Optional[BuiltInContainerNavigatorItem] = builtInContainerNavigatorItem
+        self.error: Optional[Error] = error
+
+
+class PropertyIdsOfElementOrError(_ACUnionType):
+    """ A list property identifiers of an owner element or an error.
+
+    Attributes:
+        propertyIdsOfElement (:obj:`PropertyIdsOfElement`, optional): A list property identifiers of an owner element.
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("propertyIdsOfElement", "error", )
+
+    constructor  = _ConstructUnion(Union[PropertyIdsOfElementWrapper, ErrorItem])
+
+    def __new__(cls, propertyIdsOfElement: Optional[PropertyIdsOfElement] = None, error: Optional[Error] = None):
+        return cls.constructor(propertyIdsOfElement=propertyIdsOfElement, error=error)
+
+    def __init__(self, propertyIdsOfElement: Optional[PropertyIdsOfElement] = None, error: Optional[Error] = None):
+        self.propertyIdsOfElement: Optional[PropertyIdsOfElement] = propertyIdsOfElement
         self.error: Optional[Error] = error
 
 
@@ -2745,6 +3589,158 @@ ClassificationItemInTree_ = ClassificationItemInTree
 ClassificationItemArrayItem.get_classinfo().add_field('classificationItem', ClassificationItemInTree)
 
 
+class NavigatorItem_: pass
+class NavigatorItemArrayItem(_ACBaseType):
+    """ EMPTY STRING
+
+    Attributes:
+        navigatorItem (:obj:`NavigatorItem_`): The details of a navigator item.
+
+    """
+    __slots__ = ("navigatorItem", )
+
+    def __init__(self, navigatorItem: NavigatorItem_):
+        self.navigatorItem: NavigatorItem_ = navigatorItem
+
+
+class NavigatorItem(_ACBaseType):
+    """ The details of a navigator item.
+
+    Attributes:
+        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
+        prefix (:obj:`str`): The prefix of the navigator item's name.
+        name (:obj:`str`): The name of the navigator item.
+        type (:obj:`str`): The type of a navigator item. The 'UndefinedItem' type is used when the actual type of the navigator item cannot be retrieved from Archicad.
+        sourceNavigatorItemId (:obj:`NavigatorItemId`, optional): The identifier of a navigator item.
+        children (:obj:`list` of :obj:`NavigatorItemArrayItem`, optional): A list of navigator items.
+
+    """
+    __slots__ = ("navigatorItemId", "prefix", "name", "type", "sourceNavigatorItemId", "children", )
+
+    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str, type: str, sourceNavigatorItemId: Optional[NavigatorItemId] = None, children: Optional[List[NavigatorItemArrayItem]] = None):
+        self.navigatorItemId: NavigatorItemId = navigatorItemId
+        self.prefix: str = prefix
+        self.name: str = name
+        self.type: str = type
+        self.sourceNavigatorItemId: Optional[NavigatorItemId] = sourceNavigatorItemId
+        self.children: Optional[List[NavigatorItemArrayItem]] = children
+
+NavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
+NavigatorItem.get_classinfo().add_field('prefix', str)
+NavigatorItem.get_classinfo().add_field('name', str)
+NavigatorItem.get_classinfo().add_field('type', str, value_set(['UndefinedItem', 'ProjectMapRootItem', 'StoryItem', 'SectionItem', 'ElevationItem', 'InteriorElevationItem', 'WorksheetItem', 'DetailItem', 'DocumentFrom3DItem', 'Perspective3DItem', 'Axonometry3DItem', 'CameraSetItem', 'CameraItem', 'ScheduleItem', 'ProjectIndexItem', 'TextListItem', 'GraphicListItem', 'InfoItem', 'HelpItem', 'FolderItem', 'LayoutBookRootItem', 'SubsetItem', 'LayoutItem', 'DrawingItem', 'MasterFolderItem', 'MasterLayoutItem']))
+NavigatorItem.get_classinfo().add_field('sourceNavigatorItemId', Optional[NavigatorItemId])
+NavigatorItem.get_classinfo().add_field('children', Optional[List[NavigatorItemArrayItem]])
+
+NavigatorItem_ = NavigatorItem
+NavigatorItemArrayItem.get_classinfo().add_field('navigatorItem', NavigatorItem)
+
+
+class NavigatorTree(_ACBaseType):
+    """ A tree of navigator items.
+
+    Attributes:
+        rootItem (:obj:`NavigatorItem`): The details of a navigator item.
+
+    """
+    __slots__ = ("rootItem", )
+
+    def __init__(self, rootItem: NavigatorItem):
+        self.rootItem: NavigatorItem = rootItem
+
+NavigatorTree.get_classinfo().add_field('rootItem', NavigatorItem)
+
+
+class PropertyValue_: pass
+class PropertyBasicDefaultValue(_ACBaseType):
+    """ Default value of the property in case of a basic property value (ie. not an expression).
+
+    Attributes:
+        basicDefaultValue (:obj:`PropertyValue_`): A normal, userUndefined, notAvailable or notEvaluated property value.
+
+    """
+    __slots__ = ("basicDefaultValue", )
+
+    def __init__(self, basicDefaultValue: PropertyValue_):
+        self.basicDefaultValue: PropertyValue_ = basicDefaultValue
+
+
+PropertyDefaultValue = PropertyBasicDefaultValue
+""" Default value of the property.
+"""
+
+
+class PropertyDefinition(_ACBaseType):
+    """ A property definition. The default value of a property appears if and only if it is a custom property and is not an expression type property. (This may change in the future.)
+
+    Attributes:
+        group (:obj:`PropertyGroup`): A property group.
+        name (:obj:`str`): The localized name of the property.
+        description (:obj:`str`): The description of the property.
+        isEditable (:obj:`bool`): Defines whether the property is editable or not.
+        type (:obj:`str`): Defines the type of the property's value.
+        propertyId (:obj:`PropertyId`, optional): The identifier of a property.
+        possibleEnumValues (:obj:`list` of :obj:`PossibleEnumValuesArrayItem`, optional): A list of enumeration values.
+        defaultValue (:obj:`PropertyDefaultValue`, optional): Default value of the property.
+
+    """
+    __slots__ = ("group", "name", "description", "isEditable", "type", "propertyId", "possibleEnumValues", "defaultValue", )
+
+    def __init__(self, group: PropertyGroup, name: str, description: str, isEditable: bool, type: str, propertyId: Optional[PropertyId] = None, possibleEnumValues: Optional[List[PossibleEnumValuesArrayItem]] = None, defaultValue: Optional[PropertyDefaultValue] = None):
+        self.group: PropertyGroup = group
+        self.name: str = name
+        self.description: str = description
+        self.isEditable: bool = isEditable
+        self.type: str = type
+        self.propertyId: Optional[PropertyId] = propertyId
+        self.possibleEnumValues: Optional[List[PossibleEnumValuesArrayItem]] = possibleEnumValues
+        self.defaultValue: Optional[PropertyDefaultValue] = defaultValue
+
+PropertyDefinition.get_classinfo().add_field('group', PropertyGroup)
+PropertyDefinition.get_classinfo().add_field('name', str)
+PropertyDefinition.get_classinfo().add_field('description', str)
+PropertyDefinition.get_classinfo().add_field('isEditable', bool)
+PropertyDefinition.get_classinfo().add_field('type', str)
+PropertyDefinition.get_classinfo().add_field('propertyId', Optional[PropertyId])
+PropertyDefinition.get_classinfo().add_field('possibleEnumValues', Optional[List[PossibleEnumValuesArrayItem]])
+PropertyDefinition.get_classinfo().add_field('defaultValue', Optional[PropertyDefaultValue])
+
+
+class PropertyDefinitionWrapper(_ACBaseType):
+    """ 
+
+    Attributes:
+        propertyDefinition (:obj:`PropertyDefinition`): A property definition. The default value of a property appears if and only if it is a custom property and is not an expression type property. (This may change in the future.)
+
+    """
+    __slots__ = ("propertyDefinition", )
+
+    def __init__(self, propertyDefinition: PropertyDefinition):
+        self.propertyDefinition: PropertyDefinition = propertyDefinition
+
+PropertyDefinitionWrapper.get_classinfo().add_field('propertyDefinition', PropertyDefinition)
+
+
+class PropertyDefinitionOrError(_ACUnionType):
+    """ A property definition or an error.
+
+    Attributes:
+        propertyDefinition (:obj:`PropertyDefinition`, optional): A property definition. The default value of a property appears if and only if it is a custom property and is not an expression type property. (This may change in the future.)
+        error (:obj:`Error`, optional): The details of an error.
+
+    """
+    __slots__ = ("propertyDefinition", "error", )
+
+    constructor  = _ConstructUnion(Union[PropertyDefinitionWrapper, ErrorItem])
+
+    def __new__(cls, propertyDefinition: Optional[PropertyDefinition] = None, error: Optional[Error] = None):
+        return cls.constructor(propertyDefinition=propertyDefinition, error=error)
+
+    def __init__(self, propertyDefinition: Optional[PropertyDefinition] = None, error: Optional[Error] = None):
+        self.propertyDefinition: Optional[PropertyDefinition] = propertyDefinition
+        self.error: Optional[Error] = error
+
+
 class NormalOrUserUndefinedPropertyValue(_ACUnionType):
     """ A normal or a userUndefined property value.
 
@@ -2808,6 +3804,9 @@ class PropertyValue(_ACUnionType):
         self.type: str = type
         self.status: str = status
         self.value: Union[float, int, str, bool, List[float], List[int], List[str], List[bool], EnumValueId, List[EnumValueIdWrapper], None] = value
+
+PropertyValue_ = PropertyValue
+PropertyBasicDefaultValue.get_classinfo().add_field('basicDefaultValue', PropertyValue)
 
 
 class PropertyValueWrapper(_ACBaseType):
@@ -2880,68 +3879,6 @@ class PropertyValuesOrError(_ACUnionType):
         self.error: Optional[Error] = error
 
 
-class NavigatorItem_: pass
-class NavigatorItemArrayItem(_ACBaseType):
-    """ EMPTY STRING
-
-    Attributes:
-        navigatorItem (:obj:`NavigatorItem_`): The details of a navigator item.
-
-    """
-    __slots__ = ("navigatorItem", )
-
-    def __init__(self, navigatorItem: NavigatorItem_):
-        self.navigatorItem: NavigatorItem_ = navigatorItem
-
-
-class NavigatorItem(_ACBaseType):
-    """ The details of a navigator item.
-
-    Attributes:
-        navigatorItemId (:obj:`NavigatorItemId`): The identifier of a navigator item.
-        prefix (:obj:`str`): The prefix of the navigator item's name.
-        name (:obj:`str`): The name of the navigator item.
-        type (:obj:`str`): The types of a navigator item. The 'UndefinedItem' type is used when the actual type of the navigator item cannot be retrieved from ARCHICAD.
-        sourceNavigatorItemId (:obj:`NavigatorItemId`, optional): The identifier of a navigator item.
-        children (:obj:`list` of :obj:`NavigatorItemArrayItem`, optional): A list of navigator items.
-
-    """
-    __slots__ = ("navigatorItemId", "prefix", "name", "type", "sourceNavigatorItemId", "children", )
-
-    def __init__(self, navigatorItemId: NavigatorItemId, prefix: str, name: str, type: str, sourceNavigatorItemId: Optional[NavigatorItemId] = None, children: Optional[List[NavigatorItemArrayItem]] = None):
-        self.navigatorItemId: NavigatorItemId = navigatorItemId
-        self.prefix: str = prefix
-        self.name: str = name
-        self.type: str = type
-        self.sourceNavigatorItemId: Optional[NavigatorItemId] = sourceNavigatorItemId
-        self.children: Optional[List[NavigatorItemArrayItem]] = children
-
-NavigatorItem.get_classinfo().add_field('navigatorItemId', NavigatorItemId)
-NavigatorItem.get_classinfo().add_field('prefix', str)
-NavigatorItem.get_classinfo().add_field('name', str)
-NavigatorItem.get_classinfo().add_field('type', str, value_set(['UndefinedItem', 'ProjectMapRootItem', 'StoryItem', 'SectionItem', 'ElevationItem', 'InteriorElevationItem', 'WorksheetItem', 'DetailItem', 'DocumentFrom3DItem', 'Perspective3DItem', 'Axonometry3DItem', 'CameraSetItem', 'CameraItem', 'ScheduleItem', 'ProjectIndexItem', 'TextListItem', 'GraphicListItem', 'InfoItem', 'HelpItem', 'FolderItem', 'LayoutBookRootItem', 'SubsetItem', 'LayoutItem', 'DrawingItem', 'MasterFolderItem', 'MasterLayoutItem']))
-NavigatorItem.get_classinfo().add_field('sourceNavigatorItemId', Optional[NavigatorItemId])
-NavigatorItem.get_classinfo().add_field('children', Optional[List[NavigatorItemArrayItem]])
-
-NavigatorItem_ = NavigatorItem
-NavigatorItemArrayItem.get_classinfo().add_field('navigatorItem', NavigatorItem)
-
-
-class NavigatorTree(_ACBaseType):
-    """ A tree of navigator items.
-
-    Attributes:
-        rootItem (:obj:`NavigatorItem`): The details of a navigator item.
-
-    """
-    __slots__ = ("rootItem", )
-
-    def __init__(self, rootItem: NavigatorItem):
-        self.rootItem: NavigatorItem = rootItem
-
-NavigatorTree.get_classinfo().add_field('rootItem', NavigatorItem)
-
-
 class Types:
     """ 
     """
@@ -2950,7 +3887,10 @@ class Types:
     AddOnCommandParameters=AddOnCommandParameters
     AddOnCommandResponse=AddOnCommandResponse
     AttributeId=AttributeId
+    AttributeFolderId=AttributeFolderId
     AttributeIdWrapperItem=AttributeIdWrapperItem
+    AttributeFolder=AttributeFolder
+    AttributeFolderContent=AttributeFolderContent
     AttributeHeader=AttributeHeader
     LayerAttribute=LayerAttribute
     FillAttribute=FillAttribute
@@ -2968,11 +3908,26 @@ class Types:
     ClassificationItemDetails=ClassificationItemDetails
     ClassificationSystem=ClassificationSystem
     Point2D=Point2D
+    NavigatorItemId=NavigatorItemId
+    PublisherSetId=PublisherSetId
+    OtherNavigatorTreeId=OtherNavigatorTreeId
+    NavigatorTreeId=NavigatorTreeId
+    GeneralNavigatorItemData=GeneralNavigatorItemData
+    NavigatorItemIdAndType=NavigatorItemIdAndType
+    DetailNavigatorItem=DetailNavigatorItem
+    Document3DNavigatorItem=Document3DNavigatorItem
+    ElevationNavigatorItem=ElevationNavigatorItem
+    InteriorElevationNavigatorItem=InteriorElevationNavigatorItem
+    SectionNavigatorItem=SectionNavigatorItem
+    StoryNavigatorItem=StoryNavigatorItem
+    WorksheetNavigatorItem=WorksheetNavigatorItem
     UserDefinedPropertyUserId=UserDefinedPropertyUserId
     BuiltInPropertyUserId=BuiltInPropertyUserId
     PropertyUserId=PropertyUserId
     PropertyId=PropertyId
     PropertyIdArrayItem=PropertyIdArrayItem
+    PropertyGroupId=PropertyGroupId
+    PropertyGroupIdArrayItem=PropertyGroupIdArrayItem
     PropertyGroup=PropertyGroup
     NormalNumberPropertyValue=NormalNumberPropertyValue
     NormalIntegerPropertyValue=NormalIntegerPropertyValue
@@ -3005,14 +3960,11 @@ class Types:
     ExecutionResult=ExecutionResult
     ElementId=ElementId
     ElementIdArrayItem=ElementIdArrayItem
+    TypeOfElement=TypeOfElement
     ElementsWrapper=ElementsWrapper
     ElementsOrError=ElementsOrError
     Image=Image
-    NavigatorItemId=NavigatorItemId
-    PublisherSetId=PublisherSetId
-    OtherNavigatorTreeId=OtherNavigatorTreeId
     FolderParameters=FolderParameters
-    NavigatorTreeId=NavigatorTreeId
     BoundingBox2D=BoundingBox2D
     BoundingBox3D=BoundingBox3D
     RGBColor=RGBColor
@@ -3030,9 +3982,20 @@ class Types:
     LayerCombinationAttributeWrapper=LayerCombinationAttributeWrapper
     ClassificationIdWrapper=ClassificationIdWrapper
     ClassificationItemDetailsWrapper=ClassificationItemDetailsWrapper
-    EnumValueIdWrapper=EnumValueIdWrapper
-    ImageWrapper=ImageWrapper
+    ClassificationSystemWrapper=ClassificationSystemWrapper
     NavigatorItemIdWrapper=NavigatorItemIdWrapper
+    NavigatorItemIdAndTypeWrapper=NavigatorItemIdAndTypeWrapper
+    DetailNavigatorItemWrapper=DetailNavigatorItemWrapper
+    Document3DNavigatorItemWrapper=Document3DNavigatorItemWrapper
+    ElevationNavigatorItemWrapper=ElevationNavigatorItemWrapper
+    InteriorElevationNavigatorItemWrapper=InteriorElevationNavigatorItemWrapper
+    SectionNavigatorItemWrapper=SectionNavigatorItemWrapper
+    StoryNavigatorItemWrapper=StoryNavigatorItemWrapper
+    WorksheetNavigatorItemWrapper=WorksheetNavigatorItemWrapper
+    PropertyGroupWrapper=PropertyGroupWrapper
+    EnumValueIdWrapper=EnumValueIdWrapper
+    TypeOfElementWrapper=TypeOfElementWrapper
+    ImageWrapper=ImageWrapper
     BoundingBox2DWrapper=BoundingBox2DWrapper
     BoundingBox3DWrapper=BoundingBox3DWrapper
     AttributeIdOrError=AttributeIdOrError
@@ -3051,13 +4014,27 @@ class Types:
     ZoneCategoryAttribute=ZoneCategoryAttribute
     BuildingMaterialAttribute=BuildingMaterialAttribute
     LayerCombinationAttributeOrError=LayerCombinationAttributeOrError
+    ClassificationItemAvailability=ClassificationItemAvailability
+    PropertyDefinitionAvailability=PropertyDefinitionAvailability
     ClassificationIdOrError=ClassificationIdOrError
     ElementClassification=ElementClassification
     ClassificationItemOrError=ClassificationItemOrError
+    ClassificationSystemOrError=ClassificationSystemOrError
+    NavigatorItemIdAndTypeOrError=NavigatorItemIdAndTypeOrError
+    DetailNavigatorItemOrError=DetailNavigatorItemOrError
+    Document3DNavigatorItemOrError=Document3DNavigatorItemOrError
+    ElevationNavigatorItemOrError=ElevationNavigatorItemOrError
+    InteriorElevationNavigatorItemOrError=InteriorElevationNavigatorItemOrError
+    SectionNavigatorItemOrError=SectionNavigatorItemOrError
+    StoryNavigatorItemOrError=StoryNavigatorItemOrError
+    WorksheetNavigatorItemOrError=WorksheetNavigatorItemOrError
+    BuiltInContainerNavigatorItem=BuiltInContainerNavigatorItem
     PropertyIdOrError=PropertyIdOrError
-    PropertyDefinition=PropertyDefinition
+    PropertyGroupOrError=PropertyGroupOrError
     NormalSingleEnumPropertyValue=NormalSingleEnumPropertyValue
     NormalMultiEnumPropertyValue=NormalMultiEnumPropertyValue
+    PropertyIdsOfElement=PropertyIdsOfElement
+    TypeOfElementOrError=TypeOfElementOrError
     ImageOrError=ImageOrError
     BoundingBox2DOrError=BoundingBox2DOrError
     BoundingBox3DOrError=BoundingBox3DOrError
@@ -3066,8 +4043,11 @@ class Types:
     LineItemWrapper=LineItemWrapper
     ZoneCategoryAttributeWrapper=ZoneCategoryAttributeWrapper
     BuildingMaterialAttributeWrapper=BuildingMaterialAttributeWrapper
+    ClassificationItemAvailabilityWrapper=ClassificationItemAvailabilityWrapper
+    PropertyDefinitionAvailabilityWrapper=PropertyDefinitionAvailabilityWrapper
     ClassificationIdsOrErrorsWrapper=ClassificationIdsOrErrorsWrapper
-    PropertyDefinitionWrapper=PropertyDefinitionWrapper
+    BuiltInContainerNavigatorItemWrapper=BuiltInContainerNavigatorItemWrapper
+    PropertyIdsOfElementWrapper=PropertyIdsOfElementWrapper
     PenTableAttribute=PenTableAttribute
     SurfaceAttributeOrError=SurfaceAttributeOrError
     CompositeAttributeOrError=CompositeAttributeOrError
@@ -3075,14 +4055,25 @@ class Types:
     LineAttribute=LineAttribute
     ZoneCategoryAttributeOrError=ZoneCategoryAttributeOrError
     BuildingMaterialAttributeOrError=BuildingMaterialAttributeOrError
+    ClassificationItemAvailabilityOrError=ClassificationItemAvailabilityOrError
+    PropertyDefinitionAvailabilityOrError=PropertyDefinitionAvailabilityOrError
     ElementClassificationOrError=ElementClassificationOrError
-    PropertyDefinitionOrError=PropertyDefinitionOrError
+    BuiltInContainerNavigatorItemOrError=BuiltInContainerNavigatorItemOrError
+    PropertyIdsOfElementOrError=PropertyIdsOfElementOrError
     PenTableAttributeWrapper=PenTableAttributeWrapper
     LineAttributeWrapper=LineAttributeWrapper
     PenTableAttributeOrError=PenTableAttributeOrError
     LineAttributeOrError=LineAttributeOrError
     ClassificationItemArrayItem=ClassificationItemArrayItem
     ClassificationItemInTree=ClassificationItemInTree
+    NavigatorItemArrayItem=NavigatorItemArrayItem
+    NavigatorItem=NavigatorItem
+    NavigatorTree=NavigatorTree
+    PropertyBasicDefaultValue=PropertyBasicDefaultValue
+    PropertyDefaultValue=PropertyDefaultValue
+    PropertyDefinition=PropertyDefinition
+    PropertyDefinitionWrapper=PropertyDefinitionWrapper
+    PropertyDefinitionOrError=PropertyDefinitionOrError
     NormalOrUserUndefinedPropertyValue=NormalOrUserUndefinedPropertyValue
     ElementPropertyValue=ElementPropertyValue
     PropertyValue=PropertyValue
@@ -3090,7 +4081,4 @@ class Types:
     PropertyValueOrErrorItem=PropertyValueOrErrorItem
     PropertyValuesWrapper=PropertyValuesWrapper
     PropertyValuesOrError=PropertyValuesOrError
-    NavigatorItemArrayItem=NavigatorItemArrayItem
-    NavigatorItem=NavigatorItem
-    NavigatorTree=NavigatorTree
 
